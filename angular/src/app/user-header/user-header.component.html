@@ -1,0 +1,18 @@
+<ul class="navbar-nav my-2 my-lg-0" *ngIf="user;else notLoggedIn">
+  <li class="nav-item">
+    <a class="nav-link" [routerLink]="'/dashboard'">{{user.login}}</a>
+  </li>
+  <li class="nav-item" routerLinkActive="active">
+    <a class="nav-link" [routerLink]="'/login'" (click)="logout()">Log out</a>
+  </li>
+</ul>
+<ng-template #notLoggedIn>
+  <ul class="navbar-nav my-2 my-lg-0">
+    <li class="nav-item" routerLinkActive="active">
+      <a class="nav-link" [routerLink]="'/login'">Login</a>
+    </li>
+    <li class="nav-item" routerLinkActive="active">
+      <a class="nav-link" [routerLink]="'/registration'">Register</a>
+    </li>
+  </ul>
+</ng-template>
