@@ -10,7 +10,7 @@ export class AuthService {
   constructor(private http: Http, private loggedUserService: LoggedUserService) { }
 
   public login(): Observable<boolean> {
-    this.loggedUserService.loggedUser.next({login: 'KW', password: ''});
+    this.loggedUserService.loggedUser.next({id: 0, name: 'Wojtek', password: ''});
     return Observable.of(true);
   }
 
