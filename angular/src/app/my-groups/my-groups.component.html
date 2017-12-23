@@ -1,0 +1,16 @@
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Name</th>
+      <th scope="col">Owner name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let group of groups">
+      <th scope="row">{{group.id}}</th>
+      <td>{{group.name}}</td>
+      <td>{{group.owner.name}}</td>
+    </tr>
+  </tbody>
+</table>

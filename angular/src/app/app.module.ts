@@ -13,6 +13,7 @@ import {HttpModule} from '@angular/http';
 import {MyGroupsComponent} from './my-groups/my-groups.component';
 import {LoggedUserService} from './service/logged-user.service';
 import {UserHeaderComponent} from './user-header/user-header.component';
+import {GroupsService} from './service/groups.service';
 
 const appRoutes: Routes = [
   {path: '', component: LoginComponent},
@@ -37,7 +38,7 @@ const appRoutes: Routes = [
     CommonModule,
     HttpModule
   ],
-  providers: [AuthService, LoggedUserService],
+  providers: [AuthService, LoggedUserService, GroupsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
