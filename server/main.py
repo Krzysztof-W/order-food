@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from createDB import Base, User, Group, GroupInvitation, GroupUsers
 from alchemyEncoder import new_alchemy_encoder
 
-from flask import Flask, jsonify, abort, request, g
+from flask import Flask, jsonify, abort, request, g, url_for
 from flask_httpauth import HTTPBasicAuth
 import json
 from passlib.apps import custom_app_context as pwd_context
@@ -39,7 +39,7 @@ def register():
 @auth.verify_password
 def verify_password(username_or_token, password):
     # first try to authenticate by token
-    user = User.verify_auth_token(app.secret_key, username_or_token)
+    user = User.verify_auth_token(username_or_token, app.secret_key, session)
     if not user:
         # try to authenticate with username/password
         user = session.query(User).filter(User.username==username_or_token).first()
@@ -65,7 +65,7 @@ def get_user(id):
 @app.route('/users', methods=['GET'])
 @auth.login_required
 def get_users():
-    list = [{ 'id': user.id, 'username': user.username } for x in session.query(User).all()]
+    list = [{ 'id': x.id, 'username': x.username } for x in session.query(User).all()]
     return jsonify({'users': list})
 
 @app.route('/groupUsers/<int:id>', methods=['GET'])

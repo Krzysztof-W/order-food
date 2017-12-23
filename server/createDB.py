@@ -24,7 +24,7 @@ class User(Base):
         return s.dumps({'id': self.id})
 
     @staticmethod
-    def verify_auth_token(token, secret_key):
+    def verify_auth_token(token, secret_key, session):
         s = Serializer(secret_key)
         try:
             data = s.loads(token)
@@ -32,7 +32,7 @@ class User(Base):
             return None    # valid token, but expired
         except BadSignature:
             return None    # invalid token
-        user = User.query.get(data['id'])
+        user = session.query(User).filter(User.id==data['id']).first()
         return user
 	
 class Group(Base):
