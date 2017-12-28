@@ -14,6 +14,7 @@ import {MyGroupsComponent} from './my-groups/my-groups.component';
 import {LoggedUserService} from './service/logged-user.service';
 import {UserHeaderComponent} from './user-header/user-header.component';
 import {GroupsService} from './service/groups.service';
+import {TableComponent} from './table/table.component';
 
 const appRoutes: Routes = [
   {path: '', component: LoginComponent},
@@ -28,7 +29,8 @@ const appRoutes: Routes = [
     LoginComponent,
     DashboardComponent,
     MyGroupsComponent,
-    UserHeaderComponent
+    UserHeaderComponent,
+    TableComponent
   ],
   imports: [
     NgbModule.forRoot(),
