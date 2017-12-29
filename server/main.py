@@ -134,5 +134,38 @@ def groups_data_users(group_id, user_id):
         else:
             abort(400)
     
+@app.route('/groups/<int:group_id>/users/<int:user_id>/invitation', methods=['POST'])
+@auth.login_required
+def groups_data_users_invitation(group_id, user_id):
+    group = session.query(Group).filter(Group.id==group_id).first()
+    user = session.query(User).filter(User.id==user_id).first()
+    if user and group:
+        invitation = GroupInvitation(group = group, user = user, sender = g.user)
+        session.add(invitation)
+        session.commit()
+        return jsonify({'invitation': invitation.toJson()}), 201
+    else:
+        abort(400) #wrong arguments
+    
+@app.route('/invitations/<int:invitation_id>', methods=['PUT', 'DELETE'])
+@auth.login_required
+def put_delete_invitations(invitation_id):
+    invitation = session.query(GroupInvitation).filter(GroupInvitation.id==invitation_id).first()
+    if invitation.user_id != g.user.id:
+        return jsonify({}), 401
+    if invitation:
+        if request.method == 'PUT':
+            decision = request.json.get('decision')
+            if decision is None:
+                abort(400)
+            if decision:
+                gu = GroupUsers(group = invitation.group, user = invitation.user)
+                session.add(gu)
+        session.delete(invitation)
+        session.commit()
+        return jsonify({}), 200
+    else:
+        abort(400) #wrong arguments 
+    
 if __name__ == '__main__':
     app.run(debug=True)
