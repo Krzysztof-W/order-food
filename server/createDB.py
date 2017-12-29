@@ -63,7 +63,7 @@ class Group(Base):
 
     def toJsonFull(self):
         return {'id': self.id, 'name': self.name, 'owner': self.owner.toJson(),
-                'users': [gu.toJson() for gu in self.groupUsers]}
+                'users': [gu.user.toJson() for gu in self.groupUsers]}
 	        
 class GroupInvitation(Base):
     __tablename__ = 'group_invitation'

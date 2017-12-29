@@ -85,6 +85,12 @@ def createGroup():
     session.commit()
     return jsonify({'group': group.toJson()}), 201
 
+@app.route('/groups', methods=['GET'])
+@auth.login_required
+def get_groups():
+    groups = [g.toJson() for g in session.query(Group).all()]
+    return jsonify({'groups': groups})
+    
 @app.route('/groups/<int:group_id>', methods=['GET', 'PUT', 'DELETE'])
 @auth.login_required
 def groups_data(group_id):
@@ -105,12 +111,28 @@ def groups_data(group_id):
         session.delete(group)
         session.commit()
         return jsonify({}), 200
-
-@app.route('/groups', methods=['GET'])
+    
+@app.route('/groups/<int:group_id>/users/<int:user_id>', methods=['POST', 'DELETE'])
 @auth.login_required
-def get_groups():
-    groups = [g.toJson() for g in session.query(Group).all()]
-    return jsonify({'groups': groups})
+def groups_data_users(group_id, user_id):
+    if request.method == 'POST':
+        group = session.query(Group).filter(Group.id==group_id).first()
+        user = session.query(User).filter(User.id==user_id).first()
+        if user and group:
+            gu = GroupUsers(group = group, user = user)
+            session.add(gu)
+            session.commit()
+            return jsonify({}), 201
+        else:
+            abort(400) #wrong arguments
+    else:
+        gu = session.query(GroupUsers).filter(GroupUsers.user_id==user_id, GroupUsers.group_id==group_id).first()
+        if gu:
+            session.delete(gu)
+            session.commit()
+            return jsonify({}), 200
+        else:
+            abort(400)
     
 if __name__ == '__main__':
     app.run(debug=True)
