@@ -11,20 +11,12 @@ import {LoggedUserService} from '../service/logged-user.service';
   templateUrl: './my-groups.component.html'
 })
 export class MyGroupsComponent implements OnInit {
-  groups: GroupModel[] = [
-    {owner: {password: 'qwer', id: 0, name: 'Wojtek'}, owner_id: 1, id: 1, name: 'StaraGrupa'},
-    {owner: {password: 'qwer', id: 1, name: 'Krzysio'}, owner_id: 2, id: 2, name: 'NowaGrupa'}
-  ];
+  groups: GroupModel[];
   columns: TableColumn[] = [
     {name: 'Group name', data: 'name'},
-    {name: 'Owner name', data: 'owner.name'}
+    {name: 'Owner name', data: 'owner.username'}
   ];
   actions: TableAction[] = [
-    {
-      name: 'Details',
-      condition: item => true,
-      action: item => null
-    },
     {
       name: 'Invite',
       condition: item => this.isGroupOwner(item),
@@ -42,10 +34,6 @@ export class MyGroupsComponent implements OnInit {
     }
   ];
 
-  private isGroupOwner(item) {
-    return this.loggedUserService.loggedUser.getValue() && this.loggedUserService.loggedUser.getValue().id === item.owner.id;
-  }
-
   selectedGroup: GroupModel;
   @ViewChild('inviteModalContent') inviteModalContent;
   closeResult: string;
@@ -53,7 +41,7 @@ export class MyGroupsComponent implements OnInit {
   constructor(private loggedUserService: LoggedUserService, private groupsService: GroupsService, private modalService: NgbModal) { }
 
   ngOnInit() {
-    // this.groupsService.getGroups().subscribe(groups => this.groups = groups);
+    this.groupsService.getGroups().subscribe(groups => this.groups = groups);
   }
 
   open(content, group: GroupModel) {
@@ -63,5 +51,9 @@ export class MyGroupsComponent implements OnInit {
     }, (reason) => {
       this.closeResult = `Invitation cancelled`;
     });
+  }
+
+  private isGroupOwner(item) {
+    return this.loggedUserService.loggedUser.getValue() && this.loggedUserService.loggedUser.getValue().id === item.owner.id;
   }
 }

@@ -6,3 +6,8 @@ export class GroupModel {
   owner_id: number;
   owner: UserModel;
 }
+
+export class GroupDetailsModel {
+  group: GroupModel;
+  users: UserModel[];
+}
