@@ -15,12 +15,19 @@ import {LoggedUserService} from './service/logged-user.service';
 import {UserHeaderComponent} from './user-header/user-header.component';
 import {GroupsService} from './service/groups.service';
 import {TableComponent} from './table/table.component';
+import {AuthGuard} from './guard/auth.guard';
+import {MyGroupDetailsComponent} from './my-group-details/my-group-details.component';
+import {RegistrationComponent} from './registration/registration.component';
+import {AlertComponent} from './alert/alert.component';
+import {AlertService} from './service/alert.service';
 
 const appRoutes: Routes = [
   {path: '', component: LoginComponent},
   {path: 'login', component: LoginComponent},
-  {path: 'dashboard', component: DashboardComponent},
-  {path: 'my-groups', component: MyGroupsComponent}
+  {path: 'registration', component: RegistrationComponent},
+  {path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard]},
+  {path: 'my-groups', component: MyGroupsComponent, canActivate: [AuthGuard]},
+  {path: 'my-group/:id', component: MyGroupDetailsComponent, canActivate: [AuthGuard]}
 ];
 
 @NgModule({
@@ -29,8 +36,11 @@ const appRoutes: Routes = [
     LoginComponent,
     DashboardComponent,
     MyGroupsComponent,
+    MyGroupDetailsComponent,
     UserHeaderComponent,
-    TableComponent
+    TableComponent,
+    RegistrationComponent,
+    AlertComponent
   ],
   imports: [
     NgbModule.forRoot(),
@@ -40,7 +50,7 @@ const appRoutes: Routes = [
     CommonModule,
     HttpModule
   ],
-  providers: [AuthService, LoggedUserService, GroupsService],
+  providers: [AuthService, LoggedUserService, GroupsService, AuthGuard, AlertService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
