@@ -13,6 +13,10 @@ class User(Base):
     username  = Column(String(32), nullable=False)
     password_hash = Column(String(128), nullable=False)
     
+    groups = relationship("Group", back_populates="owner")
+    receivedInvitations = relationship("GroupInvitation", back_populates="user", foreign_keys='GroupInvitation.user_id')
+    sentInvitations = relationship("GroupInvitation", back_populates="sender", foreign_keys='GroupInvitation.sender_id')
+    
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
         
@@ -34,21 +38,39 @@ class User(Base):
             return None    # invalid token
         user = session.query(User).filter(User.id==data['id']).first()
         return user
+        
+    def toJson(self):
+        return {'id': self.id, 'username': self.username}
+        
+    def toJsonFull(self):
+        groupsJson = [g.toJson() for g in self.groups]
+        receivedInvitationsJson = [ri.toJson() for ri in self.receivedInvitations]
+        sentInvitationsJson = [ri.toJson() for ri in self.sentInvitations]
+        return {'id': self.id, 'username': self.username, 'groups': groupsJson, 
+        'receivedInvitations': receivedInvitationsJson, 'sentInvitations': sentInvitationsJson}
 	
 class Group(Base):
-	__tablename__ = 'group'
-	id = Column(Integer, primary_key=True)
-	name = Column(String(250), nullable=False)
-	owner_id = Column(Integer, ForeignKey('user.id'))
-	owner = relationship("User")
+    __tablename__ = 'group'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(250), nullable=False)
+    owner_id = Column(Integer, ForeignKey('user.id'))
+    owner = relationship("User", back_populates="groups")
+    
+    def toJson(self):
+        return {'id': self.id, 'name': self.name, 'owner': self.owner.toJson()}
 	
 class GroupInvitation(Base):
-	__tablename__ = 'group_invitation'
-	id = Column(Integer, primary_key=True)
-	user_id = Column(Integer, ForeignKey('user.id'))
-	user = relationship(User)
-	group_id = Column(Integer, ForeignKey('group.id'))
-	group = relationship(Group)
+    __tablename__ = 'group_invitation'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship("User", back_populates="receivedInvitations", foreign_keys=[user_id])
+    sender_id = Column(Integer, ForeignKey('user.id'))
+    sender = relationship("User", back_populates="sentInvitations", foreign_keys=[sender_id])
+    group_id = Column(Integer, ForeignKey('group.id'))
+    group = relationship("Group")
+    
+    def toJson(self):
+        return {'id': self.id, 'invitedUser': self.user.toJson(), 'sender': self.sender.toJson(), 'group': self.group.toJson()}
 	
 class GroupUsers(Base):
 	__tablename__ = 'group_users'

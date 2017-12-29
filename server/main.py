@@ -2,16 +2,17 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from createDB import Base, User, Group, GroupInvitation, GroupUsers
-from alchemyEncoder import new_alchemy_encoder
 
 from flask import Flask, jsonify, abort, request, g, url_for
 from flask_httpauth import HTTPBasicAuth
 import json
-from passlib.apps import custom_app_context as pwd_context
+from flask_cors import CORS
 
 #flask app
 app = Flask(__name__)
 app.secret_key = "super secret key"
+
+CORS(app)
 
 #database SQLAlchemy
 engine = create_engine('sqlite:///order_food.db')
@@ -54,30 +55,47 @@ def get_auth_token():
     token = g.user.generate_auth_token(app.secret_key, 600)
     return jsonify({'token': token.decode('ascii'), 'duration': 600})
     
-@app.route('/users/<int:id>')
+@app.route('/account', methods=['GET'])
+@auth.login_required
+def get_user_account():
+    return jsonify(g.user.toJsonFull())
+    
+@app.route('/users/<int:id>', methods=['GET'])
 @auth.login_required
 def get_user(id):
     user = session.query(User).filter(User.id==id)
     if not user:
         abort(400)
-    return jsonify({ 'id': user.id, 'username': user.username })
+    return jsonify(user.toJsonFull())
     
 @app.route('/users', methods=['GET'])
 @auth.login_required
 def get_users():
-    list = [{ 'id': x.id, 'username': x.username } for x in session.query(User).all()]
+    list = [user.toJsonFull() for user in session.query(User).all()]
     return jsonify({'users': list})
+    
+@app.route('/createGroup', methods=['POST'])
+@auth.login_required
+def createGroup():
+    name = request.json.get('name')
+    if name is None:
+        abort(400) # missing argument
+    group = Group(name = name, owner = g.user)
+    session.add(group)
+    session.commit()
+    return jsonify(group.toJSON())
 
-@app.route('/groupUsers/<int:id>', methods=['GET'])
+@app.route('/groupUsers/<int:group_id>', methods=['GET'])
 @auth.login_required
 def get_group_users(group_id):
-    groupUsers = [json.dumps(gu.user, cls=new_alchemy_encoder(), check_circular=False) for gu in session.query(GroupUsers).filter(GroupUsers.group_id==group_id).all()]
+    groupUsers = [gu.user.toJson() for gu in session.query(GroupUsers).filter(GroupUsers.group_id==group_id).all()]
+    groupUsers.append(session.query(Group).filter(Group.id==group_id).first().owner.toJson())
     return jsonify({'users': groupUsers})
 
 @app.route('/groups', methods=['GET'])
 @auth.login_required
 def get_groups():
-    groups = [json.dumps(x, cls=new_alchemy_encoder(), check_circular=False) for x in session.query(Group).all()]
+    groups = [g.toJson() for g in session.query(Group).all()]
     return jsonify({'groups': groups})
     
 if __name__ == '__main__':
