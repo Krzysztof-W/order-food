@@ -83,14 +83,28 @@ def createGroup():
     group = Group(name = name, owner = g.user)
     session.add(group)
     session.commit()
-    return jsonify(group.toJSON())
+    return jsonify({'group': group.toJson()}), 201
 
-@app.route('/groupUsers/<int:group_id>', methods=['GET'])
+@app.route('/groups/<int:group_id>', methods=['GET', 'PUT', 'DELETE'])
 @auth.login_required
-def get_group_users(group_id):
-    groupUsers = [gu.user.toJson() for gu in session.query(GroupUsers).filter(GroupUsers.group_id==group_id).all()]
-    groupUsers.append(session.query(Group).filter(Group.id==group_id).first().owner.toJson())
-    return jsonify({'users': groupUsers})
+def groups_data(group_id):
+    group = session.query(Group).filter(Group.id==group_id).first()
+    if not group:
+        abort(400)
+    if request.method == 'GET':
+        return jsonify({'group': group.toJsonFull()})
+    elif request.method == 'PUT':
+        name = request.json.get('name')
+        if name is None:
+            abort(400) # missing argument
+        else:
+            group.name=name
+            session.commit()
+            return jsonify({'group': group.toJsonFull()}), 200
+    else:
+        session.delete(group)
+        session.commit()
+        return jsonify({}), 200
 
 @app.route('/groups', methods=['GET'])
 @auth.login_required

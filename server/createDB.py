@@ -10,7 +10,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
-    username  = Column(String(32), nullable=False)
+    username = Column(String(32), nullable=False)
     password_hash = Column(String(128), nullable=False)
     
     groups = relationship("Group", back_populates="owner")
@@ -45,7 +45,7 @@ class User(Base):
     def toJsonFull(self):
         groupsJson = [g.toJson() for g in self.groups]
         receivedInvitationsJson = [ri.toJson() for ri in self.receivedInvitations]
-        sentInvitationsJson = [ri.toJson() for ri in self.sentInvitations]
+        sentInvitationsJson = [si.toJson() for si in self.sentInvitations]
         return {'id': self.id, 'username': self.username, 'groups': groupsJson, 
         'receivedInvitations': receivedInvitationsJson, 'sentInvitations': sentInvitationsJson}
 	
@@ -56,9 +56,15 @@ class Group(Base):
     owner_id = Column(Integer, ForeignKey('user.id'))
     owner = relationship("User", back_populates="groups")
     
+    groupUsers = relationship("GroupUsers", back_populates="group", foreign_keys='GroupUsers.group_id')
+    
     def toJson(self):
         return {'id': self.id, 'name': self.name, 'owner': self.owner.toJson()}
-	
+
+    def toJsonFull(self):
+        return {'id': self.id, 'name': self.name, 'owner': self.owner.toJson(),
+                'users': [gu.toJson() for gu in self.groupUsers]}
+	        
 class GroupInvitation(Base):
     __tablename__ = 'group_invitation'
     id = Column(Integer, primary_key=True)
@@ -76,9 +82,9 @@ class GroupUsers(Base):
 	__tablename__ = 'group_users'
 	id = Column(Integer, primary_key=True)
 	user_id = Column(Integer, ForeignKey('user.id'))
-	user = relationship(User)
+	user = relationship("User")
 	group_id = Column(Integer, ForeignKey('group.id'))
-	group = relationship(Group)
+	group = relationship("Group", back_populates="groupUsers")
 	
 engine = create_engine('sqlite:///order_food.db')
 Base.metadata.create_all(engine)
