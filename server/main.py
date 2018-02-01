@@ -35,7 +35,7 @@ def register():
     user.hash_password(password)
     session.add(user)
     session.commit()
-    return jsonify({ 'id': user.id, 'username': user.username }), 201, {'Location': url_for('get_user', id = user.id, _external = True)}
+    return jsonify({ 'id': user.id, 'username': user.username }), 201, {'Location': url_for('get_user_account', id = user.id, _external = True)}
 
 @auth.verify_password
 def verify_password(username_or_token, password):
@@ -60,18 +60,18 @@ def get_auth_token():
 def get_user_account():
     return jsonify(g.user.toJsonFull())
     
-@app.route('/users/<int:id>', methods=['GET'])
+"""@app.route('/users/<int:id>', methods=['GET'])
 @auth.login_required
 def get_user(id):
     user = session.query(User).filter(User.id==id)
     if not user:
         abort(400)
-    return jsonify(user.toJsonFull())
+    return jsonify(user.toJsonFull())"""
     
 @app.route('/users', methods=['GET'])
 @auth.login_required
 def get_users():
-    list = [user.toJsonFull() for user in session.query(User).all()]
+    list = [user.toJson() for user in session.query(User).all()]
     return jsonify({'users': list})
     
 @app.route('/createGroup', methods=['POST'])
@@ -88,7 +88,7 @@ def createGroup():
 @app.route('/groups', methods=['GET'])
 @auth.login_required
 def get_groups():
-    groups = [g.toJson() for g in session.query(Group).all()]
+    groups = [g.toJson() for g in session.query(Group).join(Group.groupUsers).filter(GroupUsers.user_id==g.user.id).all()]
     return jsonify({'groups': groups})
     
 @app.route('/groups/<int:group_id>', methods=['GET', 'PUT', 'DELETE'])
@@ -99,7 +99,7 @@ def groups_data(group_id):
         abort(400)
     if request.method == 'GET':
         return jsonify({'group': group.toJsonFull()})
-    elif request.method == 'PUT':
+    elif request.method == 'PUT' and group.owner_id==g.user.id:
         name = request.json.get('name')
         if name is None:
             abort(400) # missing argument
@@ -107,32 +107,25 @@ def groups_data(group_id):
             group.name=name
             session.commit()
             return jsonify({'group': group.toJsonFull()}), 200
-    else:
+    elif group.owner_id==g.user.id:
         session.delete(group)
         session.commit()
         return jsonify({}), 200
     
-@app.route('/groups/<int:group_id>/users/<int:user_id>', methods=['POST', 'DELETE'])
+@app.route('/groups/<int:group_id>/users/<int:user_id>', methods=['DELETE'])
 @auth.login_required
 def groups_data_users(group_id, user_id):
-    if request.method == 'POST':
-        group = session.query(Group).filter(Group.id==group_id).first()
-        user = session.query(User).filter(User.id==user_id).first()
-        if user and group:
-            gu = GroupUsers(group = group, user = user)
-            session.add(gu)
-            session.commit()
-            return jsonify({}), 201
-        else:
-            abort(400) #wrong arguments
-    else:
-        gu = session.query(GroupUsers).filter(GroupUsers.user_id==user_id, GroupUsers.group_id==group_id).first()
-        if gu:
+    group = session.query(Group).filter(Group.id==group_id).first()
+    gu = session.query(GroupUsers).filter(GroupUsers.user_id==user_id, GroupUsers.group_id==group_id).first()
+    if gu and group:
+        if(group.owner_id == g.user.id or gu.user_id==g.user.id):   
             session.delete(gu)
             session.commit()
             return jsonify({}), 200
         else:
             abort(400)
+    else:
+        abort(400)
     
 @app.route('/groups/<int:group_id>/users/<int:user_id>/invitation', methods=['POST'])
 @auth.login_required
@@ -140,10 +133,14 @@ def groups_data_users_invitation(group_id, user_id):
     group = session.query(Group).filter(Group.id==group_id).first()
     user = session.query(User).filter(User.id==user_id).first()
     if user and group:
-        invitation = GroupInvitation(group = group, user = user, sender = g.user)
-        session.add(invitation)
-        session.commit()
-        return jsonify({'invitation': invitation.toJson()}), 201
+        user_ids = [i.user_id for i in group.groupUsers]
+        if group.owner_id == g.user.id or g.user.id in user_ids:
+            invitation = GroupInvitation(group = group, user = user, sender = g.user)
+            session.add(invitation)
+            session.commit()
+            return jsonify({'invitation': invitation.toJson()}), 201
+        else:
+            abort(400)
     else:
         abort(400) #wrong arguments
     
@@ -151,9 +148,9 @@ def groups_data_users_invitation(group_id, user_id):
 @auth.login_required
 def put_delete_invitations(invitation_id):
     invitation = session.query(GroupInvitation).filter(GroupInvitation.id==invitation_id).first()
-    if invitation.user_id != g.user.id:
-        return jsonify({}), 401
     if invitation:
+        if invitation.user_id != g.user.id:
+            return jsonify({}), 401
         if request.method == 'PUT':
             decision = request.json.get('decision')
             if decision is None:
