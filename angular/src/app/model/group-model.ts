@@ -7,7 +7,6 @@ export class GroupModel {
   owner: UserModel;
 }
 
-export class GroupDetailsModel {
-  group: GroupModel;
+export class GroupFullModel extends GroupModel {
   users: UserModel[];
 }

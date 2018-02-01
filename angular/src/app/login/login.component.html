@@ -1,11 +1,17 @@
 <form (submit)="onSubmit()">
   <div class="form-group">
     <label for="loginInput">Login</label>
-    <input class="form-control" id="loginInput" placeholder="Login">
+    <input #login="ngModel" class="form-control" id="loginInput" placeholder="Login" [(ngModel)]="model.username" name="username" required>
+    <small class="form-text text-muted" *ngIf="login.invalid && (login.dirty || login.touched) && login.errors.required">
+      Login is required.
+    </small>
   </div>
   <div class="form-group">
     <label for="passwordInput">Password</label>
-    <input type="password" class="form-control" id="passwordInput" placeholder="Password">
+    <input #password="ngModel" type="password" class="form-control" id="passwordInput" placeholder="Password" [(ngModel)]="model.password" name="password" required>
+    <small class="form-text text-muted" *ngIf="password.invalid && (password.dirty || password.touched) && password.errors.required">
+      Password is required.
+    </small>
   </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <button type="submit" class="btn btn-primary" [disabled]="!model.username || !model.password">Submit</button>
 </form>
