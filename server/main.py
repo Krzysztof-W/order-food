@@ -8,6 +8,8 @@ from flask_httpauth import HTTPBasicAuth
 import json
 from flask_cors import CORS
 
+import re
+
 #flask app
 app = Flask(__name__)
 app.secret_key = "super secret key"
@@ -27,8 +29,11 @@ auth = HTTPBasicAuth()
 def register():
     username = request.json.get('username')
     password = request.json.get('password')
+    
     if username is None or password is None:
         abort(400) # missing arguments
+    if not re.match('^[a-zA-Z0-9_]+$',username): 
+        abort(400)
     if session.query(User).filter(User.username==username).first() is not None:
         abort(400) # existing user
     user = User(username = username)
@@ -68,10 +73,10 @@ def get_user(id):
         abort(400)
     return jsonify(user.toJsonFull())"""
     
-@app.route('/users', methods=['GET'])
+@app.route('/users/<string:partial_name>', methods=['GET'])
 @auth.login_required
-def get_users():
-    list = [user.toJson() for user in session.query(User).all()]
+def get_users(partial_name):
+    list = [user.toJson() for user in session.query(User).filter(User.username.like('%'+partial_name+'%')).all()]
     return jsonify({'users': list})
     
 @app.route('/createGroup', methods=['POST'])
