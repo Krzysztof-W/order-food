@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from createDB import Base, User, Group, GroupInvitation, GroupUsers
+from createDB import Base, User, Group, GroupInvitation, GroupUsers, FoodProvider, Food
 
 from flask import Flask, jsonify, abort, request, g, url_for
 from flask_httpauth import HTTPBasicAuth
@@ -133,14 +133,13 @@ def groups_data_users_invitation(group_id, user_id):
     group = session.query(Group).filter(Group.id==group_id).first()
     user = session.query(User).filter(User.id==user_id).first()
     if user and group:
-        user_ids = [i.user_id for i in group.groupUsers]
-        if group.owner_id == g.user.id or g.user.id in user_ids:
+        if group_owner_or_user(group):
             invitation = GroupInvitation(group = group, user = user, sender = g.user)
             session.add(invitation)
             session.commit()
             return jsonify({'invitation': invitation.toJson()}), 201
         else:
-            abort(400)
+            return jsonify({}), 401
     else:
         abort(400) #wrong arguments
     
@@ -162,7 +161,70 @@ def put_delete_invitations(invitation_id):
         session.commit()
         return jsonify({}), 200
     else:
-        abort(400) #wrong arguments 
+        abort(400) #wrong arguments
+        
+@app.route('/groups/<int:group_id>/createFoodProvider', methods=['POST'])
+@auth.login_required
+def post_food_provider(group_id):
+    group = session.query(Group).filter(Group.id==group_id).first()
+    if group:
+        if group.owner_id != g.user.id:
+            return jsonify({}), 401
+        name = request.json.get('name')
+        address = request.json.get('address')
+        phone = request.json.get('phone')
+        if name is None or address is None or phone is None:
+            abort(400) # missing argument
+        foodProvider = FoodProvider(name = name, address = address, phone = phone, group = group)
+        session.add(foodProvider)
+        session.commit()
+        return jsonify({'foodProvider': foodProvider.toJson()}), 201
+    else:
+        abort(400)
+
+@app.route('/groups/<int:group_id>/foodProviders', methods=['GET'])
+@auth.login_required
+def get_food_providers(group_id):
+    group = session.query(Group).filter(Group.id==group_id).first()
+    if group:
+        if not group_owner_or_user(group):
+            return jsonify({}), 401
+        return jsonify({'foodProviders': [fp.toJson() for fp in group.foodProviders]}), 201
+    else:
+        abort(400)
+        
+@app.route('/foodProviders/<int:food_provider_id>', methods=['GET', 'PUT', 'DELETE'])
+@auth.login_required 
+def get_put_post_foodProvider(food_provider_id):
+    food_provider = session.query(FoodProvider).filter(FoodProvider.id==food_provider_id).first()
+    if not food_provider:
+        abort(400)
+    if food_provider.group.owner_id != g.user.id:
+        return jsonify({}), 401
+    if request.method == 'GET':
+        return jsonify({'foodProvider': food_provider.toJson()})
+    elif request.method == 'PUT':
+        name = request.json.get('name')
+        address = request.json.get('address')
+        phone = request.json.get('phone')
+        if name is None or address is None or phone is None:
+            abort(400) # missing argument
+        else:
+            food_provider.name=name
+            food_provider.address=address
+            food_provider.phone=phone
+            session.commit()
+            return jsonify({'foodProvider': food_provider.toJson()}), 200
+    else:
+        session.delete(food_provider)
+        session.commit()
+        return jsonify({}), 200
+
+def group_owner_or_user(group):
+    user_ids = [i.user_id for i in group.groupUsers]
+    if group.owner_id == g.user.id or g.user.id in user_ids:
+        return True
+    return False
     
 if __name__ == '__main__':
     app.run(debug=True)
