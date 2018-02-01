@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {AuthService, RegistrationModel} from '../service/auth.service';
+import {AuthService, UserLoginModel} from '../service/auth.service';
 import {Router} from '@angular/router';
 import {AlertService} from '../service/alert.service';
 
@@ -8,13 +8,10 @@ import {AlertService} from '../service/alert.service';
   selector: 'app-registration',
   templateUrl: './registration.component.html'
 })
-export class RegistrationComponent implements OnInit {
-  model: RegistrationModel = new RegistrationModel();
+export class RegistrationComponent {
+  model: UserLoginModel = new UserLoginModel();
 
   constructor(private router: Router, private authService: AuthService, private alertService: AlertService) {
-  }
-
-  ngOnInit() {
   }
 
   onSubmit() {
