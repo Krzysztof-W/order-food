@@ -20,6 +20,9 @@ import {MyGroupDetailsComponent} from './my-group-details/my-group-details.compo
 import {RegistrationComponent} from './registration/registration.component';
 import {AlertComponent} from './alert/alert.component';
 import {AlertService} from './service/alert.service';
+import {SearchUserComponent} from './search-user/search-user.component';
+import { RestaurantsComponent } from './restaurants/restaurants.component';
+import { MenuComponent } from './menu/menu.component';
 
 const appRoutes: Routes = [
   {path: '', component: LoginComponent},
@@ -40,7 +43,10 @@ const appRoutes: Routes = [
     UserHeaderComponent,
     TableComponent,
     RegistrationComponent,
-    AlertComponent
+    AlertComponent,
+    SearchUserComponent,
+    RestaurantsComponent,
+    MenuComponent
   ],
   imports: [
     NgbModule.forRoot(),

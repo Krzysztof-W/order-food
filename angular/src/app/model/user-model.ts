@@ -12,9 +12,3 @@ export class UserFullModel extends UserModel {
   receivedInvitations: InvitationModel[];
   sentInvitations: InvitationModel[];
 }
-
-export class UserFullModel extends UserModel {
-  groups: GroupModel[];
-  receivedInvitations: InvitationModel[];
-  sentInvitations: InvitationModel[];
-}
