@@ -113,7 +113,7 @@ class Food(Base):
     food_provider = relationship("FoodProvider", back_populates="food")
     
     def toJson(self):
-        return {'id': self.id, 'name': self.name, 'description': self.description,'price': self.price}
+        return {'id': self.id, 'name': self.name, 'description': self.description,'price': str(self.price)}
     
 
 engine = create_engine('sqlite:///order_food.db')

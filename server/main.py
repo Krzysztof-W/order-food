@@ -224,6 +224,25 @@ def get_put_post_foodProvider(food_provider_id):
         session.delete(food_provider)
         session.commit()
         return jsonify({}), 200
+        
+@app.route('/foodProviders/<int:food_provider_id>/createFood', methods=['POST'])
+@auth.login_required
+def post_food(food_provider_id):
+    food_provider = session.query(FoodProvider).filter(FoodProvider.id==food_provider_id).first()
+    if food_provider:
+        if food_provider.group.owner_id != g.user.id:
+            return jsonify({}), 401
+        name = request.json.get('name')
+        description = request.json.get('description')
+        price = request.json.get('price')
+        if name is None or description is None or price is None:
+            abort(400) # missing argument
+        food = Food(name = name, description = description, price = price, food_provider = food_provider)
+        session.add(food)
+        session.commit()
+        return jsonify({'food': food.toJson()}), 201
+    else:
+        abort(400)
 
 def group_owner_or_user(group):
     user_ids = [i.user_id for i in group.groupUsers]
