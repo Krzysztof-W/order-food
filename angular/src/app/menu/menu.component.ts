@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import {OrderedFoodModel} from '../model/ordered-food.model';
+import {Component, OnInit} from '@angular/core';
+import {FoodModel} from '../model/food.model';
 
 export enum MenuMode {
   CONFIG,
@@ -13,7 +13,7 @@ export enum MenuMode {
 export class MenuComponent implements OnInit {
 
   mode: MenuMode = MenuMode.CONFIG;
-  menuItems: OrderedFoodModel[];
+  menuItems: FoodModel[];
 
   constructor() { }
 
