@@ -200,7 +200,7 @@ def get_food_providers(group_id):
         
 @app.route('/foodProviders/<int:food_provider_id>', methods=['GET', 'PUT', 'DELETE'])
 @auth.login_required 
-def get_put_post_foodProvider(food_provider_id):
+def get_put_delete_foodProvider(food_provider_id):
     food_provider = session.query(FoodProvider).filter(FoodProvider.id==food_provider_id).first()
     if not food_provider:
         abort(400)
@@ -243,7 +243,34 @@ def post_food(food_provider_id):
         return jsonify({'food': food.toJson()}), 201
     else:
         abort(400)
-
+        
+@app.route('/food/<int:food_id>', methods=['GET', 'PUT', 'DELETE'])
+@auth.login_required 
+def get_put_delete_food(food_id):
+    food = session.query(Food).filter(Food.id==food_id).first()
+    if not food:
+        abort(400)
+    if food.food_provider.group.owner_id != g.user.id:
+        return jsonify({}), 401
+    if request.method == 'GET':
+        return jsonify({'food': food.toJson()})
+    elif request.method == 'PUT':
+        name = request.json.get('name')
+        description = request.json.get('description')
+        price = request.json.get('price')
+        if name is None or description is None or price is None:
+            abort(400) # missing argument
+        else:
+            food.name=name
+            food.description=description
+            food.price=price
+            session.commit()
+            return jsonify({'food': food.toJson()}), 200
+    else:
+        session.delete(food)
+        session.commit()
+        return jsonify({}), 200
+        
 def group_owner_or_user(group):
     user_ids = [i.user_id for i in group.groupUsers]
     if group.owner_id == g.user.id or g.user.id in user_ids:
