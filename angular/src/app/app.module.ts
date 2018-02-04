@@ -9,7 +9,7 @@ import {RouterModule, Routes} from '@angular/router';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {CommonModule} from '@angular/common';
 import {AuthService} from './service/auth.service';
-import {HttpModule} from '@angular/http';
+import {HttpClientModule} from '@angular/common/http';
 import {MyGroupsComponent} from './my-groups/my-groups.component';
 import {LoggedUserService} from './service/logged-user.service';
 import {UserHeaderComponent} from './user-header/user-header.component';
@@ -20,6 +20,9 @@ import {MyGroupDetailsComponent} from './my-group-details/my-group-details.compo
 import {RegistrationComponent} from './registration/registration.component';
 import {AlertComponent} from './alert/alert.component';
 import {AlertService} from './service/alert.service';
+import {SearchUserComponent} from './search-user/search-user.component';
+import { RestaurantsComponent } from './restaurants/restaurants.component';
+import { MenuComponent } from './menu/menu.component';
 
 const appRoutes: Routes = [
   {path: '', component: LoginComponent},
@@ -40,7 +43,10 @@ const appRoutes: Routes = [
     UserHeaderComponent,
     TableComponent,
     RegistrationComponent,
-    AlertComponent
+    AlertComponent,
+    SearchUserComponent,
+    RestaurantsComponent,
+    MenuComponent
   ],
   imports: [
     NgbModule.forRoot(),
@@ -48,7 +54,7 @@ const appRoutes: Routes = [
     BrowserModule,
     FormsModule,
     CommonModule,
-    HttpModule
+    HttpClientModule
   ],
   providers: [AuthService, LoggedUserService, GroupsService, AuthGuard, AlertService],
   bootstrap: [AppComponent]

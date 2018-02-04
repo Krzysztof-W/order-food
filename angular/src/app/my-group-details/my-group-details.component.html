@@ -1,1 +1,29 @@
-<app-table [items]="groupDetails.users" [columnData]="[{name: 'User name', data: 'name'}]"></app-table>
+<app-table *ngIf="groupDetails;else loading" [items]="groupDetails.users" [columnData]="[{name: 'User name', data: 'name'}]"></app-table>
+<ng-template #loading>Loading...</ng-template>
+
+<ng-template #inviteModalContent let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Send invitation</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <!--<div class="form-group">-->
+      <!--<label for="groupName">Group</label>-->
+      <!--<input #groupName class="form-control" id="groupName" placeholder="Group" [value]="selectedGroup.name" readonly>-->
+    <!--</div>-->
+    <app-search-user></app-search-user>
+    <div class="form-group">
+      <label for="userLogin">User login</label>
+      <input #userLogin class="form-control" id="userLogin" placeholder="User login">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="c(userLogin.value)">Send</button>
+  </div>
+</ng-template>
+
+<hr>
+
+<button type="button" class="btn btn-outline-dark" (click)="openCreateInvitationModal(inviteModalContent)">Create group</button>
