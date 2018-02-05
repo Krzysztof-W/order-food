@@ -93,7 +93,7 @@ def createGroup():
 @app.route('/groups', methods=['GET'])
 @auth.login_required
 def get_groups():
-    groups = [g.toJson() for g in session.query(Group).join(Group.groupUsers).filter(GroupUsers.user_id==g.user.id).all()]
+    groups = [group.toJson() for group in session.query(Group).join(Group.groupUsers).filter(GroupUsers.user_id==g.user.id).all()]
     return jsonify({'groups': groups})
     
 @app.route('/groups/<int:group_id>', methods=['GET', 'PUT', 'DELETE'])
@@ -204,11 +204,11 @@ def get_put_delete_foodProvider(food_provider_id):
     food_provider = session.query(FoodProvider).filter(FoodProvider.id==food_provider_id).first()
     if not food_provider:
         abort(400)
+    if request.method == 'GET' and group_owner_or_user(food_provider.group):
+        return jsonify({'foodProvider': food_provider.toJsonFull()})
     if food_provider.group.owner_id != g.user.id:
         return jsonify({}), 401
-    if request.method == 'GET':
-        return jsonify({'foodProvider': food_provider.toJson()})
-    elif request.method == 'PUT':
+    if request.method == 'PUT':
         name = request.json.get('name')
         address = request.json.get('address')
         phone = request.json.get('phone')
@@ -219,7 +219,7 @@ def get_put_delete_foodProvider(food_provider_id):
             food_provider.address=address
             food_provider.phone=phone
             session.commit()
-            return jsonify({'foodProvider': food_provider.toJson()}), 200
+            return jsonify({'foodProvider': food_provider.toJsonFull()}), 200
     else:
         session.delete(food_provider)
         session.commit()

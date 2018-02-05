@@ -100,6 +100,9 @@ class FoodProvider(Base):
     food = relationship("Food", back_populates="food_provider")
     
     def toJson(self):
+        return {'id': self.id, 'name': self.name, 'address': self.address, 'phone': self.phone}
+                
+    def toJsonFull(self):
         return {'id': self.id, 'name': self.name, 'address': self.address, 'phone': self.phone, 
                 'food': [f.toJson() for f in self.food]}
     
