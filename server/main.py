@@ -94,6 +94,7 @@ def createGroup():
 @auth.login_required
 def get_groups():
     groups = [group.toJson() for group in session.query(Group).join(Group.groupUsers).filter(GroupUsers.user_id==g.user.id).all()]
+    groups.extend([group.toJson() for group in session.query(Group).filter(Group.owner_id==g.user.id).all()])
     return jsonify({'groups': groups})
     
 @app.route('/groups/<int:group_id>', methods=['GET', 'PUT', 'DELETE'])
