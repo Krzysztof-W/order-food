@@ -283,8 +283,7 @@ def post_open_order(food_provider_id):
         description = request.json.get('description')
         if description is None:
             abort(400) # missing argument
-        order = Order(description = description, food_provider = food_provider, order_owner = g.user, group = food_provider.group)
-        order.status = "N"
+        order = Order(description = description, status = "N", food_provider = food_provider, order_owner = g.user, group = food_provider.group)
         session.add(order)
         session.commit()
         return jsonify({'order': order.toJson()}), 201
@@ -295,11 +294,34 @@ def post_open_order(food_provider_id):
 @auth.login_required
 def get_orders(group_id):
     group = session.query(Group).filter(Group.id==group_id).first()
-    orders = session.query(Order).filter(Order.group_id==group_id).all()
+    orders = session.query(Order).filter(Order.group_id==group_id, Order.status.in_("N","P")).all()
     if group:
         if not group_owner_or_user(group):
             return jsonify({}), 401
         return jsonify({'orders': [o.toJson() for o in orders]}), 200
+    else:
+        abort(400)
+        
+@app.route('/orders/<int:order_id>/orderFood', methods=['POST'])
+@auth.login_required
+def post_order_food(order_id):
+    order = session.query(Order).filter(Order.id==order_id, Order.status=="N").first()
+    if order:
+        if not group_owner_or_user(order.group):
+            return jsonify({}), 401
+        food_id = request.json.get('id')
+        if food_id is None:
+            abort(400)
+        food = session.query(Food).filter(Food.id==food_id).first()
+        if food:
+            if food.food_provider.group_id != order.group_id:
+                abort(400)
+            ordered_food = OrderedFood(user = g.user, food = food, order = order)
+            session.add(ordered_food)
+            session.commit()
+            return jsonify({'order': order.toJsonFull()}), 201            
+        else:
+            abort(400)
     else:
         abort(400)
         
