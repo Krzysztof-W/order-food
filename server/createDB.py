@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Numeric
+from sqlalchemy import Column, ForeignKey, Integer, String, Numeric, Boolean, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -117,7 +117,42 @@ class Food(Base):
     
     def toJson(self):
         return {'id': self.id, 'name': self.name, 'description': self.description,'price': str(self.price)}
+   
+class Order(Base):
+    __tablename__ = 'order'
+    id = Column(Integer, primary_key=True)
+    description = Column(String(80), nullable=True)
+    confirm_date_time = Column(DateTime, nullable=True)
+    status = Column(String(1), nullable=False)
+    food_provider_id = Column(Integer, ForeignKey('food_provider.id'))
+    food_provider = relationship("FoodProvider")
+    order_owner_id = Column(Integer, ForeignKey('user.id'))
+    order_owner = relationship("User")
     
-
+    ordered_food = relationship("OrderedFood", back_populates="order")
+    
+    def toJson(self):
+        return {'id': self.id, 'description': self.description, 'confirmDateTime': self.confirm_date_time, 'status': status,
+                'foodProvider': self.food_provider.toJson(), 'orderOwner': self.order_owner.toJson()}
+                
+    def toJsonFull(self):
+        return {'id': self.id, 'description': self.description, 'confirmDateTime': self.confirm_date_time, 'status': status,
+                'foodProvider': self.food_provider.toJson(), 'orderOwner': self.order_owner.toJson(),
+                'orderedFood': [of.toJson() for of in self.ordered_food]}
+    
+class OrderedFood(Base):
+    __tablename__ = 'ordered_food'
+    id = Column(Integer, primary_key=True)
+    paid = Column(Boolean, default=False, nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship("User")
+    food_id = Column(Integer, ForeignKey('food.id'))
+    food = relationship("Food")
+    order_id = Column(Integer, ForeignKey('order.id'))
+    order = relationship("Order", back_populates="ordered_food")
+    
+    def toJson(self):
+        return {'id': self.id, 'paid': self.paid, 'user': self.user.toJson(), 'food': self.food.toJson()}
+    
 engine = create_engine('sqlite:///order_food.db')
 Base.metadata.create_all(engine)

@@ -194,7 +194,7 @@ def get_food_providers(group_id):
     if group:
         if not group_owner_or_user(group):
             return jsonify({}), 401
-        return jsonify({'foodProviders': [fp.toJson() for fp in group.foodProviders]}), 201
+        return jsonify({'foodProviders': [fp.toJsonFull() for fp in group.foodProviders]}), 201
     else:
         abort(400)
         
