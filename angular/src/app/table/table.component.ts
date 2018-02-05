@@ -21,6 +21,7 @@ export class TableComponent {
   private _items: any[];
   @Input() actions: TableAction[];
   cells: string[][];
+  @Input() emptyText: string = 'No records to display';
 
   @Input() set items(value: any[]) {
     this._items = value;

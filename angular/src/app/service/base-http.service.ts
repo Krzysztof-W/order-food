@@ -8,21 +8,32 @@ export class BaseHttpService {
   constructor(protected http: HttpClient) {}
 
   get<T>(url: string, headers?: HttpHeaders): Observable<T> {
-    const token: string = localStorage.getItem('token');
-    let httpHeaders: HttpHeaders = new HttpHeaders({['Authorization']: 'Basic ' + token});
-    if (headers) {
-      httpHeaders = this.joinHeaders(httpHeaders, headers);
-    }
+    const httpHeaders = this.addAuthorizationHeader(headers);
     return this.http.get<T>(Parameters.SERVICES_ADDRESS + url, {headers: httpHeaders});
   }
 
   post<T>(url: string, body: T, headers?: HttpHeaders): Observable<Object> {
+    const httpHeaders = this.addAuthorizationHeader(headers);
+    return this.http.post<T>(Parameters.SERVICES_ADDRESS + url, body, {headers: httpHeaders});
+  }
+
+  put<T>(url: string, body: T, headers?: HttpHeaders): Observable<Object> {
+    const httpHeaders = this.addAuthorizationHeader(headers);
+    return this.http.put<T>(Parameters.SERVICES_ADDRESS + url, body, {headers: httpHeaders});
+  }
+
+  delete(url: string, headers?: HttpHeaders): Observable<Object> {
+    const httpHeaders = this.addAuthorizationHeader(headers);
+    return this.http.delete(Parameters.SERVICES_ADDRESS + url, {headers: httpHeaders});
+  }
+
+  private addAuthorizationHeader(headers: HttpHeaders) {
     const token: string = localStorage.getItem('token');
     let httpHeaders: HttpHeaders = new HttpHeaders({['Authorization']: 'Basic ' + token});
     if (headers) {
       httpHeaders = this.joinHeaders(httpHeaders, headers);
     }
-    return this.http.post<T>(Parameters.SERVICES_ADDRESS + url, body, {headers: httpHeaders});
+    return httpHeaders;
   }
 
   private joinHeaders(headers1: HttpHeaders, headers2: HttpHeaders): HttpHeaders {

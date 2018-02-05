@@ -15,8 +15,17 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    this.authService.login(this.model).subscribe(response => {
-      this.router.navigate(['/dashboard']);
-    });
+    this.authService.login(this.model).subscribe(
+      response => {
+        this.router.navigate(['/dashboard']);
+      },
+      error => {
+        if (error.status == 401) {
+          this.alertService.addErrorAlert('Wrong login or password');
+        } else {
+          this.alertService.addErrorAlert();
+        }
+      }
+    );
   }
 }

@@ -9,18 +9,6 @@ import {BaseHttpService} from './base-http.service';
 
 @Injectable()
 export class GroupsService extends BaseHttpService {
-  groups: GroupModel[] = [
-    {owner: {password: 'qwer', id: 0, username: 'Wojtek'}, owner_id: 1, id: 1, name: 'StaraGrupa'},
-    {owner: {password: 'qwer', id: 1, username: 'Krzysio'}, owner_id: 2, id: 2, name: 'NowaGrupa'}
-  ];
-  groupUsers: GroupFullModel = {
-    owner: {password: 'qwer', id: 0, username: 'Wojtek'}, owner_id: 1, id: 1, name: 'StaraGrupa',
-    users: [
-      {password: 'qwer', id: 0, username: 'Wojtek'},
-      {password: 'qwer', id: 1, username: 'Krzysio'}
-    ]
-  };
-
   constructor(protected http: HttpClient) {
     super(http);
   }
@@ -29,34 +17,36 @@ export class GroupsService extends BaseHttpService {
     return this.post<{name: string}>('createGroup', {name: groupName});
   }
 
-  deleteGroup(group: GroupModel) {
-    console.log('delete group');
-  }
-
-  removeUser(group: GroupModel, user: UserModel) {
-    console.log('remove user');
-  }
-
   getGroups(): Observable<GroupModel[]> {
-    // return Observable.of(this.groups);
     return this.get<{groups: GroupModel[]}>('groups').map(response => response.groups);
   }
 
   getGroupDetails(groupId: number): Observable<GroupFullModel> {
-    // return Observable.of(this.groupUsers);
     return this.get<{group: GroupFullModel}>('groups/' + groupId).map(response => response.group);
   }
 
-  createInvitation(invitation: InvitationModel) {
-    console.log('create invitation');
+  editGroupName(groupId: number, name: string): Observable<Object> {
+    return this.put<{name: string}>('groups/' + groupId, {name: name});
   }
 
-  deleteInvitation(invitation: InvitationModel) {
-    console.log('delete invitation');
+  deleteGroup(groupId: number): Observable<Object> {
+    return this.delete('groups/' + groupId);
   }
 
-  processInvitation(invitation: InvitationModel, decision: boolean) {
-    console.log('process invitation');
+  removeGroupMember(groupId: number, userId: number): Observable<Object> {
+    return this.delete('groups/' + groupId + '/users/' + userId)
+  }
+
+  createInvitation(groupId: number, userId: number): Observable<Object> {
+    return this.post('groups/' + groupId + '/users/' + userId + '/invitation', {});
+  }
+
+  deleteInvitation(id: number): Observable<Object> {
+    return this.delete('invitations/' + id);
+  }
+
+  processInvitation(id: number, decision: boolean): Observable<Object> {
+    return this.put<{decision: boolean}>('invitations/' + id, {decision: decision});
   }
 
   getUsers(searchString: string): Observable<UserModel[]> {
