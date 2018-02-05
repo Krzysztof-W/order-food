@@ -13,7 +13,6 @@ class User(Base):
     username = Column(String(32), nullable=False)
     password_hash = Column(String(128), nullable=False)
     
-    groups = relationship("Group", back_populates="owner")
     receivedInvitations = relationship("GroupInvitation", back_populates="user", foreign_keys='GroupInvitation.user_id')
     sentInvitations = relationship("GroupInvitation", back_populates="sender", foreign_keys='GroupInvitation.sender_id')
     
@@ -43,29 +42,25 @@ class User(Base):
         return {'id': self.id, 'username': self.username}
         
     def toJsonFull(self):
-        groupsJson = [g.toJson() for g in self.groups]
         receivedInvitationsJson = [ri.toJson() for ri in self.receivedInvitations]
         sentInvitationsJson = [si.toJson() for si in self.sentInvitations]
-        return {'id': self.id, 'username': self.username, 'groups': groupsJson, 
-        'receivedInvitations': receivedInvitationsJson, 'sentInvitations': sentInvitationsJson}
+        return {'id': self.id, 'username': self.username, 'receivedInvitations': receivedInvitationsJson, 'sentInvitations': sentInvitationsJson}
 	
 class Group(Base):
     __tablename__ = 'group'
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
     owner_id = Column(Integer, ForeignKey('user.id'))
-    owner = relationship("User", back_populates="groups")
+    owner = relationship("User")
     
     groupUsers = relationship("GroupUsers", back_populates="group", foreign_keys='GroupUsers.group_id')
-    foodProviders = relationship("FoodProvider", back_populates="group", foreign_keys='FoodProvider.group_id')
     
     def toJson(self):
         return {'id': self.id, 'name': self.name, 'owner': self.owner.toJson()}
 
     def toJsonFull(self):
         return {'id': self.id, 'name': self.name, 'owner': self.owner.toJson(),
-                'users': [gu.user.toJson() for gu in self.groupUsers],
-                'foodProviders': [fp.toJson() for fp in self.foodProviders]}
+                'users': [gu.user.toJson() for gu in self.groupUsers]}
 	        
 class GroupInvitation(Base):
     __tablename__ = 'group_invitation'
@@ -95,7 +90,7 @@ class FoodProvider(Base):
     address = Column(String(80), nullable=False)
     phone = Column(String(15), nullable=False)
     group_id = Column(Integer, ForeignKey('group.id'))
-    group = relationship("Group", back_populates="foodProviders")
+    group = relationship("Group")
     
     food = relationship("Food", back_populates="food_provider")
     
@@ -128,15 +123,17 @@ class Order(Base):
     food_provider = relationship("FoodProvider")
     order_owner_id = Column(Integer, ForeignKey('user.id'))
     order_owner = relationship("User")
+    group_id = Column(Integer, ForeignKey('group.id'))
+    group = relationship("Group")
     
     ordered_food = relationship("OrderedFood", back_populates="order")
     
     def toJson(self):
-        return {'id': self.id, 'description': self.description, 'confirmDateTime': self.confirm_date_time, 'status': status,
+        return {'id': self.id, 'description': self.description, 'confirmDateTime': self.confirm_date_time, 'status': self.status,
                 'foodProvider': self.food_provider.toJson(), 'orderOwner': self.order_owner.toJson()}
                 
     def toJsonFull(self):
-        return {'id': self.id, 'description': self.description, 'confirmDateTime': self.confirm_date_time, 'status': status,
+        return {'id': self.id, 'description': self.description, 'confirmDateTime': self.confirm_date_time, 'status': self.status,
                 'foodProvider': self.food_provider.toJson(), 'orderOwner': self.order_owner.toJson(),
                 'orderedFood': [of.toJson() for of in self.ordered_food]}
     

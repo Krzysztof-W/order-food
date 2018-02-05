@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from createDB import Base, User, Group, GroupInvitation, GroupUsers, FoodProvider, Food
+from createDB import Base, User, Group, GroupInvitation, GroupUsers, FoodProvider, Food, Order, OrderedFood
 
 from flask import Flask, jsonify, abort, request, g, url_for
 from flask_httpauth import HTTPBasicAuth
@@ -191,10 +191,11 @@ def post_food_provider(group_id):
 @auth.login_required
 def get_food_providers(group_id):
     group = session.query(Group).filter(Group.id==group_id).first()
-    if group:
+    food_providers = session.query(FoodProvider).filter(FoodProvider.group_id==group_id).all()
+    if food_providers:
         if not group_owner_or_user(group):
             return jsonify({}), 401
-        return jsonify({'foodProviders': [fp.toJsonFull() for fp in group.foodProviders]}), 201
+        return jsonify({'foodProviders': [fp.toJsonFull() for fp in food_providers]}), 200
     else:
         abort(400)
         
@@ -270,6 +271,36 @@ def get_put_delete_food(food_id):
         session.delete(food)
         session.commit()
         return jsonify({}), 200
+        
+@app.route('/foodProviders/<int:food_provider_id>/openOrder', methods=['POST'])
+@auth.login_required
+def post_open_order(food_provider_id):
+    food_provider = session.query(FoodProvider).filter(FoodProvider.id==food_provider_id).first()
+    if food_provider:
+        if not group_owner_or_user(food_provider.group):
+            return jsonify({}), 401
+        description = request.json.get('description')
+        if description is None:
+            abort(400) # missing argument
+        order = Order(description = description, food_provider = food_provider, order_owner = g.user, group = food_provider.group)
+        order.status = "N"
+        session.add(order)
+        session.commit()
+        return jsonify({'order': order.toJson()}), 201
+    else:
+        abort(400)        
+
+@app.route('/groups/<int:group_id>/orders', methods=['GET'])
+@auth.login_required
+def get_orders(group_id):
+    group = session.query(Group).filter(Group.id==group_id).first()
+    orders = session.query(Order).filter(Order.group_id==group_id).all()
+    if group:
+        if not group_owner_or_user(group):
+            return jsonify({}), 401
+        return jsonify({'orders': [o.toJson() for o in orders]}), 200
+    else:
+        abort(400)
         
 def group_owner_or_user(group):
     user_ids = [i.user_id for i in group.groupUsers]
