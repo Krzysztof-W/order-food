@@ -2,3 +2,7 @@
   Welcome {{user?.username}}!<br>
   Your id: {{user?.id}}
 </h3>
+<h5>Received invitations</h5>
+<app-table [items]="user.receivedInvitations" [columnData]="recInvColumns" [actions]="recInvAtions" emptyText="You do not have any invitation"></app-table>
+<h5>Sent invitations</h5>
+<app-table [items]="user.sentInvitations" [columnData]="sentInvColumns" [actions]="sentInvAtions" emptyText="You do not have any sent invitation"></app-table>

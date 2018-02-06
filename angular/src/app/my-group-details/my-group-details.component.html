@@ -1,4 +1,9 @@
-<app-table *ngIf="groupDetails;else loading" [items]="groupDetails.users" [columnData]="[{name: 'User name', data: 'name'}]"></app-table>
+<h5>
+  Group name: {{groupDetails?.name}}<br>
+  Owner: {{groupDetails?.owner.username}}<br>
+</h5>
+<h5>Group members</h5>
+<app-table *ngIf="groupDetails;else loading" [items]="groupDetails.users" [columnData]="[{name: 'User name', data: 'username'}]"></app-table>
 <ng-template #loading>Loading...</ng-template>
 
 <ng-template #inviteModalContent let-c="close" let-d="dismiss">
@@ -9,21 +14,21 @@
     </button>
   </div>
   <div class="modal-body">
-    <!--<div class="form-group">-->
-      <!--<label for="groupName">Group</label>-->
-      <!--<input #groupName class="form-control" id="groupName" placeholder="Group" [value]="selectedGroup.name" readonly>-->
-    <!--</div>-->
-    <app-search-user></app-search-user>
     <div class="form-group">
-      <label for="userLogin">User login</label>
-      <input #userLogin class="form-control" id="userLogin" placeholder="User login">
+      <label for="groupName">Group</label>
+      <input #groupName class="form-control" id="groupName" placeholder="Group" [value]="groupDetails.name" readonly>
     </div>
+    <app-search-user (userId)="selectUser($event);c(selectedUserId)"></app-search-user>
+    <!--<div class="form-group">-->
+      <!--<label for="userLogin">User login</label>-->
+      <!--<input #userLogin class="form-control" id="userLogin" placeholder="User login">-->
+    <!--</div>-->
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="c(userLogin.value)">Send</button>
+    <button type="button" class="btn btn-outline-dark" (click)="c(selectedUserId)">Send</button>
   </div>
 </ng-template>
 
 <hr>
 
-<button type="button" class="btn btn-outline-dark" (click)="openCreateInvitationModal(inviteModalContent)">Create group</button>
+<button type="button" class="btn btn-outline-dark" (click)="open(inviteModalContent)">Invite member</button>

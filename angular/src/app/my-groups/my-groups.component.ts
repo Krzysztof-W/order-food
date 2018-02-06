@@ -26,28 +26,27 @@ export class MyGroupsComponent implements OnInit {
     {
       name: 'Delete',
       condition: item => this.isGroupOwner(item),
-      action: item => null
+      action: item => this.deleteGroup(item)
     },
     {
       name: 'Leave',
       condition: item => !this.isGroupOwner(item),
-      action: item => null
+      action: item => this.leaveGroup(item)
     }
   ];
 
   constructor(private loggedUserService: LoggedUserService,
               private groupsService: GroupsService,
               private modalService: NgbModal,
-              private alertService: AlertService) { }
+              private alertService: AlertService) {
+  }
 
   ngOnInit() {
     this.getGroups();
   }
 
   private getGroups() {
-    // this.groups = this.loggedUserService.loggedUser.getValue().groups;
     this.groupsService.getGroups().subscribe(groups => {
-      console.log(groups);
       this.groups = groups;
     });
   }
@@ -66,5 +65,25 @@ export class MyGroupsComponent implements OnInit {
     }, (reason) => {
       // this.closeResult = `Creation cancelled`;
     });
+  }
+
+  deleteGroup(group: GroupModel): void {
+    this.groupsService.deleteGroup(group.id).subscribe(
+      success => {
+        this.alertService.addSuccessAlert(`Removed group '${group.name}'`);
+        this.getGroups();
+      },
+      error => this.alertService.addErrorAlert('Error, could not remove group')
+    );
+  }
+
+  leaveGroup(group: GroupModel): void {
+    this.groupsService.removeGroupMember(group.id, this.loggedUserService.loggedUser.getValue().id).subscribe(
+      success => {
+        this.alertService.addSuccessAlert(`You left group '${group.name}'`);
+        this.getGroups();
+      },
+      error => this.alertService.addErrorAlert('Error, could not leave group')
+    );
   }
 }

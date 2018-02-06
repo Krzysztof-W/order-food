@@ -1,8 +1,8 @@
 <div class="form-group">
   <label for="userNameInput">Login</label>
-  <input #userNameInput class="form-control" id="userNameInput" placeholder="User name" name="username" required (change)="onChange(userNameInput.value)">
+  <input #userNameInput class="form-control" id="userNameInput" placeholder="User name" name="username" required autocomplete="off" (keyup)="onChange(userNameInput.value)">
   <small class="form-text text-muted" *ngIf="userNameInput.invalid && (userNameInput.dirty || userNameInput.touched) && userNameInput.errors.required">
     Write at least 3 characters (letters and digits allowed).
   </small>
 </div>
-<app-table [items]="users" [columnData]="[{name: 'User name', data: 'name'}]" [actions]="actions"></app-table>
+<app-table [items]="users" [columnData]="[{name: 'User name', data: 'username'}]" [actions]="actions"></app-table>

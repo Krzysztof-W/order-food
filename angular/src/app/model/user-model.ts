@@ -8,7 +8,6 @@ export class UserModel {
 }
 
 export class UserFullModel extends UserModel {
-  groups: GroupModel[];
   receivedInvitations: InvitationModel[];
   sentInvitations: InvitationModel[];
 }

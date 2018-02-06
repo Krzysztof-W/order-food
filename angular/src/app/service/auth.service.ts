@@ -23,21 +23,27 @@ export class AuthService extends BaseHttpService {
 
   constructor(protected http: HttpClient, private loggedUserService: LoggedUserService) {
     super(http);
+    const token: string = localStorage.getItem('token');
+    if (token != null) {
+      this.login().subscribe();
+    }
   }
 
   public register(body: UserLoginModel): Observable<UserModel> {
     return this.http.post<UserModel>(Parameters.SERVICES_ADDRESS + 'register', body);
   }
 
-  public login(userLogin: UserLoginModel): Observable<LoginResponse> {
-    // this.loggedUserService.loggedUser.next({id: 0, username: 'Wojtek', password: ''});
-    let headers: HttpHeaders = new HttpHeaders({['Authorization']: 'Basic ' + btoa(userLogin.username + ':' + userLogin.password)});
+  public login(userLogin?: UserLoginModel): Observable<LoginResponse> {
+    const token: string = userLogin ? btoa(userLogin.username + ':' + userLogin.password) : localStorage.getItem('token');
+    if (token == null) {
+      return Observable.of(null);
+    }
+    let headers: HttpHeaders = new HttpHeaders({['Authorization']: 'Basic ' + token});
     const response$: Subject<LoginResponse> = new Subject<LoginResponse>();
     this.http.get<LoginResponse>(Parameters.SERVICES_ADDRESS + 'login', {headers}).subscribe(
       response => {
         // localStorage.setItem('token', response.token);
-        const temporaryToken: string = btoa(userLogin.username + ':' + userLogin.password);
-        localStorage.setItem('token', temporaryToken);
+        localStorage.setItem('token', token);
         // headers = new HttpHeaders({['Authorization']: 'Bearer ' + response.token});
         this.get<UserFullModel>('account').subscribe(user => {
           this.loggedUserService.loggedUser.next(user);
@@ -54,5 +60,6 @@ export class AuthService extends BaseHttpService {
 
   public logout(): void {
     this.loggedUserService.loggedUser.next(null);
+    localStorage.removeItem('token');
   }
 }

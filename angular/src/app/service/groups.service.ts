@@ -50,6 +50,6 @@ export class GroupsService extends BaseHttpService {
   }
 
   getUsers(searchString: string): Observable<UserModel[]> {
-    return this.get<UserModel[]>('users/' + searchString);
+    return this.get<{users: UserModel[]}>('users/' + searchString).map(response => response.users);
   }
 }
