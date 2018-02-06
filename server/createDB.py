@@ -134,7 +134,7 @@ class Order(Base):
                 
     def toJsonFull(self):
         return {'id': self.id, 'description': self.description, 'confirmDateTime': self.confirm_date_time, 'status': self.status,
-                'foodProvider': self.food_provider.toJson(), 'orderOwner': self.order_owner.toJson(),
+                'foodProvider': self.food_provider.toJsonFull(), 'orderOwner': self.order_owner.toJson(),
                 'orderedFood': [of.toJson() for of in self.ordered_food]}
     
 class OrderedFood(Base):
