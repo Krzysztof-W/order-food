@@ -294,11 +294,32 @@ def post_open_order(food_provider_id):
 @auth.login_required
 def get_orders(group_id):
     group = session.query(Group).filter(Group.id==group_id).first()
-    orders = session.query(Order).filter(Order.group_id==group_id, Order.status.in_("N","P")).all()
+    orders = session.query(Order).filter(Order.group_id==group_id, Order.status.in_(["N","P"])).all()
     if group:
         if not group_owner_or_user(group):
             return jsonify({}), 401
         return jsonify({'orders': [o.toJson() for o in orders]}), 200
+    else:
+        abort(400)
+
+@app.route('/orders/<int:order_id>', methods=['GET', 'PUT'])
+@auth.login_required
+def get_put_order(order_id):
+    order = session.query(Order).filter(Order.id==order_id, Order.status.in_(["N","P"])).first()
+    if order:
+        if not group_owner_or_user(order.group):
+            return jsonify({}), 401
+        if request.method == 'PUT':
+            status = request.json.get('status')
+            if status is None or status not in ["P", "C", "S"]: 
+                abort(400)
+            if (status=="P" and order.status != "N") or (status=="S" and order.status != "P"):
+                abort(400)
+            if g.user.id != order.order_owner_id:
+                return jsonify({}), 401
+            order.status=status
+            session.commit()
+        return jsonify({'order': order.toJsonFull()}), 200
     else:
         abort(400)
         
@@ -322,6 +343,32 @@ def post_order_food(order_id):
             return jsonify({'order': order.toJsonFull()}), 201            
         else:
             abort(400)
+    else:
+        abort(400)
+
+@app.route('/orderedFood/<int:ordered_food_id>', methods=['DELETE'])
+@auth.login_required
+def delete_ordered_food(ordered_food_id):
+    ordered_food = session.query(OrderedFood).filter(OrderedFood.id==ordered_food_id).first()
+    if ordered_food:
+        if ordered_food.user_id != g.user.id or ordered_food.order.status != "N":
+            return jsonify({}), 401
+        session.delete(ordered_food)
+        session.commit()
+        return jsonify({'order': ordered_food.order.toJsonFull()}), 200
+    else:
+        abort(400)
+
+@app.route('/orderedFood/<int:ordered_food_id>/paid', methods=['PUT'])
+@auth.login_required
+def paid_ordered_food(ordered_food_id):
+    ordered_food = session.query(OrderedFood).filter(OrderedFood.id==ordered_food_id).first()
+    if ordered_food:
+        if ordered_food.order.order_owner_id != g.user.id or ordered_food.order.status != "P":
+            return jsonify({}), 401
+        ordered_food.paid=True
+        session.commit()
+        return jsonify({'order': ordered_food.order.toJsonFull()}), 200
     else:
         abort(400)
         
