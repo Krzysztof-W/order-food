@@ -9,6 +9,7 @@ import json
 from flask_cors import CORS
 
 import re
+from datetime import datetime
 
 #flask app
 app = Flask(__name__)
@@ -305,14 +306,15 @@ def post_open_order(food_provider_id):
     else:
         abort(400)        
 
-@app.route('/groups/<int:group_id>/orders', methods=['GET'])
+@app.route('/users/<int:user_id>/orders', methods=['GET'])
 @auth.login_required
-def get_orders(group_id):
-    group = session.query(Group).filter(Group.id==group_id).first()
-    orders = session.query(Order).filter(Order.group_id==group_id, Order.status.in_(["N","P"])).all()
-    if group:
-        if not group_owner_or_user(group):
-            return jsonify({}), 401
+def get_orders(user_id):
+    user = session.query(User).filter(User.id==user_id).first()
+    groups = [group for group in session.query(Group).join(Group.groupUsers).filter(GroupUsers.user_id==g.user.id).all()]
+    groups.extend([group for group in session.query(Group).filter(Group.owner_id==g.user.id).all()])
+    if user:
+        group_ids = [group.id for group in groups]
+        orders = session.query(Order).filter(Order.group_id.in_(group_ids), Order.status.in_(["N","P"])).all()
         return jsonify({'orders': [o.toJson() for o in orders]}), 200
     else:
         abort(400)
@@ -333,6 +335,8 @@ def get_put_order(order_id):
             if g.user.id != order.order_owner_id:
                 return jsonify({}), 401
             order.status=status
+            if status=="P":
+                order.confirm_date_time=datetime.now()
             session.commit()
         return jsonify({'order': order.toJsonFull()}), 200
     else:
