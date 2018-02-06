@@ -139,6 +139,15 @@ def groups_data_users_invitation(group_id, user_id):
     group = session.query(Group).filter(Group.id==group_id).first()
     user = session.query(User).filter(User.id==user_id).first()
     if user and group:
+        invitation = session.query(GroupInvitation).filter(GroupInvitation.user_id==user.id,GroupInvitation.group_id==group.id).first()
+        if invitation:
+            return jsonify({'invitation': invitation.toJson()}), 200
+        allready_in_group = session.query(GroupUsers).filter(GroupUsers.group_id==group_id, GroupUsers.user_id==user.id).first()
+        if allready_in_group:
+            return jsonify({}), 200
+        allready_in_group = session.query(Group).filter(Group.owner_id==user.id).first()
+        if allready_in_group:
+            return jsonify({}), 200
         if group_owner_or_user(group):
             invitation = GroupInvitation(group = group, user = user, sender = g.user)
             session.add(invitation)
@@ -154,18 +163,24 @@ def groups_data_users_invitation(group_id, user_id):
 def put_delete_invitations(invitation_id):
     invitation = session.query(GroupInvitation).filter(GroupInvitation.id==invitation_id).first()
     if invitation:
-        if invitation.user_id != g.user.id:
-            return jsonify({}), 401
         if request.method == 'PUT':
+            if invitation.user_id != g.user.id:
+                return jsonify({}), 401
             decision = request.json.get('decision')
             if decision is None:
                 abort(400)
             if decision:
                 gu = GroupUsers(group = invitation.group, user = invitation.user)
                 session.add(gu)
-        session.delete(invitation)
-        session.commit()
-        return jsonify({}), 200
+            session.delete(invitation)
+            session.commit()
+            return jsonify({}), 200
+        else:
+            if invitation.sender_id != g.user.id:
+                return jsonify({}), 401
+            session.delete(invitation)
+            session.commit()
+            return jsonify({}), 200
     else:
         abort(400) #wrong arguments
         
