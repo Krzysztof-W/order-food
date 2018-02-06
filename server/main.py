@@ -208,7 +208,7 @@ def post_food_provider(group_id):
 def get_food_providers(group_id):
     group = session.query(Group).filter(Group.id==group_id).first()
     food_providers = session.query(FoodProvider).filter(FoodProvider.group_id==group_id).all()
-    if food_providers:
+    if group:
         if not group_owner_or_user(group):
             return jsonify({}), 401
         return jsonify({'foodProviders': [fp.toJsonFull() for fp in food_providers]}), 200
