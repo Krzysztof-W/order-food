@@ -2,9 +2,21 @@
   Group name: {{groupDetails?.name}}<br>
   Owner: {{groupDetails?.owner.username}}<br>
 </h5>
-<h5>Group members</h5>
-<app-table *ngIf="groupDetails;else loading" [items]="groupDetails.users" [columnData]="[{name: 'User name', data: 'username'}]"></app-table>
+<hr>
 <ng-template #loading>Loading...</ng-template>
+
+<h5>Food providers</h5>
+<app-table *ngIf="groupDetails;else loading" [items]="foodProviders" [columnData]="[{name: 'Food provider name', data: 'name'}]" [actions]="providerActions" [rowLink]="'/food-provider/'"></app-table>
+<button type="button" class="btn btn-outline-dark" (click)="openProvider(providerModalContent)">Add new food provider</button>
+<hr>
+
+<h5>Group members</h5>
+<app-table *ngIf="groupDetails;else loading" [items]="groupDetails.users" [columnData]="[{name: 'User name', data: 'username'}]" [actions]="memberActions"></app-table>
+<ng-container *ngIf="isGroupOwner()">
+  <button type="button" class="btn btn-outline-dark" (click)="openInvite(inviteModalContent)">Invite member</button>
+  <button type="button" class="btn btn-outline-dark" (click)="openEdit(editModalContent)">Edit group name</button>
+</ng-container>
+
 
 <ng-template #inviteModalContent let-c="close" let-d="dismiss">
   <div class="modal-header">
@@ -19,16 +31,52 @@
       <input #groupName class="form-control" id="groupName" placeholder="Group" [value]="groupDetails.name" readonly>
     </div>
     <app-search-user (userId)="selectUser($event);c(selectedUserId)"></app-search-user>
-    <!--<div class="form-group">-->
-      <!--<label for="userLogin">User login</label>-->
-      <!--<input #userLogin class="form-control" id="userLogin" placeholder="User login">-->
-    <!--</div>-->
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-outline-dark" (click)="c(selectedUserId)">Send</button>
   </div>
 </ng-template>
 
-<hr>
+<ng-template #editModalContent let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Edit group name</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input #name class="form-control" id="name" placeholder="Group name" [value]="groupDetails.name" required>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="c(name.value)" [disabled]="name.invalid">Edit</button>
+  </div>
+</ng-template>
 
-<button type="button" class="btn btn-outline-dark" (click)="open(inviteModalContent)">Invite member</button>
+<ng-template #providerModalContent let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Edit group name</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="providerName">Name</label>
+      <input #providerName="ngModel" [(ngModel)]="newProvider.name" class="form-control" id="providerName" placeholder="Provider name" required>
+    </div>
+    <div class="form-group">
+      <label for="providerAddress">Address</label>
+      <input #providerAddress="ngModel" [(ngModel)]="newProvider.address" class="form-control" id="providerAddress" placeholder="Provider address" required>
+    </div>
+    <div class="form-group">
+      <label for="providerPhone">Phone number</label>
+      <input #providerPhone="ngModel" [(ngModel)]="newProvider.phone" class="form-control" id="providerPhone" placeholder="Provider phone" required>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="c(newProvider)" [disabled]="providerName.invalid || providerAddress.invalid || providerPhone.invalid">Add</button>
+  </div>
+</ng-template>

@@ -22,6 +22,7 @@ export class TableComponent {
   @Input() actions: TableAction[];
   cells: string[][];
   @Input() emptyText: string = 'No records to display';
+  @Input() rowLink: string;
 
   @Input() set items(value: any[]) {
     this._items = value;
