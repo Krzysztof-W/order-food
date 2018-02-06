@@ -20,7 +20,6 @@ import {RegistrationComponent} from './registration/registration.component';
 import {AlertComponent} from './alert/alert.component';
 import {AlertService} from './service/alert.service';
 import {SearchUserComponent} from './search-user/search-user.component';
-import {FoodProvidersComponent} from './food-providers/food-providers.component';
 import { MenuComponent } from './menu/menu.component';
 import {AppHttpInterceptor} from './service/app-http-interceptor';
 import {FoodProviderDetailsComponent} from './food-provider-details/food-provider-details.component';
@@ -32,7 +31,8 @@ const appRoutes: Routes = [
   {path: 'registration', component: RegistrationComponent},
   {path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard]},
   {path: 'my-groups', component: MyGroupsComponent, canActivate: [AuthGuard]},
-  {path: 'my-group/:id', component: MyGroupDetailsComponent, canActivate: [AuthGuard]}
+  {path: 'my-group/:id', component: MyGroupDetailsComponent, canActivate: [AuthGuard]},
+  {path: 'food-provider/:id', component: FoodProviderDetailsComponent, canActivate: [AuthGuard]}
 ];
 
 @NgModule({
@@ -47,7 +47,6 @@ const appRoutes: Routes = [
     RegistrationComponent,
     AlertComponent,
     SearchUserComponent,
-    FoodProvidersComponent,
     MenuComponent,
     FoodProviderDetailsComponent
   ],

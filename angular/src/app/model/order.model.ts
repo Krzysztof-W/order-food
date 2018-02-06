@@ -12,11 +12,13 @@ export enum OrderStatus {
 
 export class OrderModel {
   id: number;
-  group: GroupModel;
   provider: FoodProviderModel;
   description: string;
-  orderedFood: OrderedFoodModel[];
   status: OrderStatus;
   confirmDate: Date;
   orderOwner: UserModel;
+}
+
+export class OrderFullModel extends OrderModel {
+  orderedFood: OrderedFoodModel[];
 }

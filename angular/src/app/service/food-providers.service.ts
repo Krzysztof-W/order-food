@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BaseHttpService} from './base-http.service';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
-import {FoodProviderModel} from '../model/food-provider.model';
+import {FoodProviderFullModel, FoodProviderModel} from '../model/food-provider.model';
 import {FoodProviderRequestModel} from '../model/food-provider-request.model';
 import {FoodRequestModel} from '../model/food-request.model';
 import {FoodModel} from '../model/food.model';
@@ -29,8 +29,12 @@ export class FoodProvidersService extends BaseHttpService {
     return this.put<FoodProviderRequestModel>('foodProviders/' + id, provider) as Observable<FoodProviderModel>;
   }
 
-  getProvider(id: number): Observable<FoodProviderModel> {
-    return this.get<FoodProviderModel>('foodProviders/' + id);
+  getProvider(id: number): Observable<FoodProviderFullModel> {
+    return this.get<{foodProvider: FoodProviderFullModel}>('foodProviders/' + id).map(response => response.foodProvider)
+      .map(provider => {
+        provider.food.forEach((food: FoodModel, i: number, array: FoodModel[]) => array[i].price = parseFloat(food.price).toFixed(2));
+        return provider;
+      });
   }
 
   createFood(providerId: number, food: FoodRequestModel): Observable<FoodProviderModel> {

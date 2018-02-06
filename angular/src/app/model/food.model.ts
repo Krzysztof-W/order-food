@@ -5,5 +5,5 @@ export class FoodModel {
   provider: FoodProviderModel;
   name: string;
   description: string;
-  price: number;
+  price: string;
 }

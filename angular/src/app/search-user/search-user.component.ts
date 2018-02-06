@@ -32,7 +32,7 @@ export class SearchUserComponent implements OnInit {
   ngOnInit(): void {
     this.subject
       .filter(word => word.length > 2)
-      .debounceTime(500)
+      .debounceTime(200)
       .switchMap(value => this.groupService.getUsers(value)).subscribe(
         users => this.users = users.filter(user => user.id !== this.loggedUserService.loggedUser.getValue().id)
     );

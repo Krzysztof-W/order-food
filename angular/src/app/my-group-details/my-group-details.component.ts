@@ -70,7 +70,7 @@ export class MyGroupDetailsComponent implements OnInit {
   openInvite(content) {
     this.modalService.open(content).result.then((userLogin) => {
       this.groupsService.createInvitation(this.groupDetails.id, this.selectedUserId).subscribe(
-        success => this.alertService.addSuccessAlert(`Sent invitation`),
+        success => this.alertService.addSuccessAlert(`Invitation sent`),
         error => this.alertService.addErrorAlert('Error while sending invitation')
       );
     }, (reason) => {}

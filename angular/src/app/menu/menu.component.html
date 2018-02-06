@@ -1,3 +1,30 @@
-<p>
-  menu works!
-</p>
+<h5>Menu</h5>
+<app-table [columnData]="columns" [actions]="actions" [items]="provider.food" emptyText="Menu is empty"></app-table>
+<ng-container *ngIf="isConfigMode()">
+  <ng-container *ngIf="!isOffState()">
+    <div class="modal-header">
+      <h4 class="modal-title">{{isAddState() ? 'Add' : 'Edit'}} food</h4>
+      <button type="button" class="close" aria-label="Close" (click)="closeAddEdit()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input #name="ngModel" [(ngModel)]="editedFood.name" class="form-control" id="name" placeholder="Food name" required>
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <input #description="ngModel" [(ngModel)]="editedFood.description" class="form-control" id="description" placeholder="Description" required>
+      </div>
+      <div class="form-group">
+        <label for="price">Price</label>
+        <input #price="ngModel" [(ngModel)]="editedFood.price" class="form-control" id="price" placeholder="Price" required type="number">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="addEditFood()" [disabled]="name.invalid || description.invalid || price.invalid">{{isAddState() ? 'Add' : 'Edit'}}</button>
+    </div>
+  </ng-container>
+  <button *ngIf="isOffState()" type="button" class="btn btn-outline-dark" (click)="openAddFood()">Add food to menu</button>
+</ng-container>
