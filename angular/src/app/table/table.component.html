@@ -8,15 +8,28 @@
   </thead>
   <tbody>
   <ng-container *ngIf="items && items.length > 0">
-    <tr *ngFor="let item of items; let i = index" [routerLink]="'/my-group/' + item.id" [style.cursor]="'pointer'">
-      <th scope="row">{{i + 1}}</th>
-      <td *ngFor="let cell of cells[i]">{{cell}}</td>
-      <td *ngIf="actions">
-        <ng-container *ngFor="let action of actions">
-          <button type="button" class="btn btn-secondary" *ngIf="action.condition(item)" (click)="action.action(item);$event.stopPropagation();">{{action.name}}</button>
-        </ng-container>
-      </td>
-    </tr>
+    <ng-container *ngIf="rowLink != null">
+      <tr *ngFor="let item of items; let i = index" [routerLink]="rowLink + item.id" [style.cursor]="'pointer'">
+        <th scope="row">{{i + 1}}</th>
+        <td *ngFor="let cell of cells[i]">{{cell}}</td>
+        <td *ngIf="actions">
+          <ng-container *ngFor="let action of actions">
+            <button type="button" class="btn btn-secondary" *ngIf="action.condition(item)" (click)="action.action(item);$event.stopPropagation();">{{action.name}}</button>
+          </ng-container>
+        </td>
+      </tr>
+    </ng-container>
+    <ng-container *ngIf="rowLink == null">
+      <tr *ngFor="let item of items; let i = index">
+        <th scope="row">{{i + 1}}</th>
+        <td *ngFor="let cell of cells[i]">{{cell}}</td>
+        <td *ngIf="actions">
+          <ng-container *ngFor="let action of actions">
+            <button type="button" class="btn btn-secondary" *ngIf="action.condition(item)" (click)="action.action(item);$event.stopPropagation();">{{action.name}}</button>
+          </ng-container>
+        </td>
+      </tr>
+    </ng-container>
   </ng-container>
   <ng-container *ngIf="!(items && items.length > 0)">
     <tr><td [attr.colspan]="columnData.length + (actions ? 2 : 1)">{{emptyText}}</td></tr>

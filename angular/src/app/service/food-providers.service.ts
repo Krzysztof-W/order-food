@@ -18,7 +18,7 @@ export class FoodProvidersService extends BaseHttpService {
   }
 
   getProvidersForGroup(groupId: number): Observable<FoodProviderModel[]> {
-    return this.get<FoodProviderModel[]>('groups/' + groupId + '/foodProviders');
+    return this.get<{foodProviders: FoodProviderModel[]}>('groups/' + groupId + '/foodProviders').map(response => response.foodProviders);
   }
 
   deleteProvider(id: number): Observable<Object> {

@@ -18,11 +18,6 @@ export class MyGroupsComponent implements OnInit {
     {name: 'Owner name', data: 'owner.username'}
   ];
   actions: TableAction[] = [
-    // {
-    //   name: 'Invite',
-    //   condition: item => this.isGroupOwner(item),
-    //   action: item => this.open(this.inviteModalContent, item)
-    // },
     {
       name: 'Delete',
       condition: item => this.isGroupOwner(item),
