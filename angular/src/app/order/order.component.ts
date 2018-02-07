@@ -118,7 +118,7 @@ export class OrderComponent implements OnInit {
   statusServed(): void {
     this.orderService.editOrderStatus(this.order.id, OrderStatus.SERVED).subscribe(
       order => {
-        this.router.navigate([`/dashoard`]);
+        this.router.navigate([`/dashboard`]);
         this.alertService.addSuccessAlert(`Status changed`);
       },
       error => this.alertService.addErrorAlert('Error')
@@ -128,7 +128,7 @@ export class OrderComponent implements OnInit {
   statusCancelled(): void {
     this.orderService.editOrderStatus(this.order.id, OrderStatus.CANCELLED).subscribe(
       order => {
-        this.router.navigate([`/dashoard`]);
+        this.router.navigate([`/dashboard`]);
         this.alertService.addSuccessAlert(`Status changed`);
       },
       error => this.alertService.addErrorAlert('Error')
