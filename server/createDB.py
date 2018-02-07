@@ -99,7 +99,7 @@ class FoodProvider(Base):
                 
     def toJsonFull(self):
         return {'id': self.id, 'name': self.name, 'address': self.address, 'phone': self.phone, 
-                'food': [f.toJson() for f in self.food]}
+                'group': group.toJson(), 'food': [f.toJson() for f in self.food]}
     
 class Food(Base):
     __tablename__ = 'food'
