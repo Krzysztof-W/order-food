@@ -6,6 +6,7 @@ import {AlertService} from '../service/alert.service';
 import {FoodRequestModel} from '../model/food-request.model';
 import {FoodProviderFullModel} from '../model/food-provider.model';
 import {LoggedUserService} from '../service/logged-user.service';
+import {OrderStatus} from "../model/order.model";
 
 export enum MenuMode {
   CONFIG = 'C',
@@ -25,6 +26,7 @@ export class MenuComponent implements OnInit {
   @Input() provider: FoodProviderFullModel;
   @Output() providerChange: EventEmitter<FoodProviderFullModel> = new EventEmitter<FoodProviderFullModel>();
   @Input() mode: MenuMode = MenuMode.CONFIG;
+  @Input() orderStatus: OrderStatus = OrderStatus.NEW;
   @Output() selectedFood: EventEmitter<FoodModel> = new EventEmitter<FoodModel>();
   editedFood: FoodRequestModel;
   editedFoodId: number;
@@ -48,7 +50,7 @@ export class MenuComponent implements OnInit {
     },
     {
       name: 'Select',
-      condition: item => this.mode === MenuMode.SELECT,
+      condition: item => this.mode === MenuMode.SELECT && this.orderStatus === OrderStatus.NEW,
       action: item => this.selectFood(item)
     }
   ];

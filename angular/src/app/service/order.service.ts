@@ -29,7 +29,8 @@ export class OrderService extends BaseHttpService {
   }
 
   editOrderStatus(orderId: number, status: OrderStatus): Observable<OrderFullModel> {
-    return this.put<{status: string}>('orders/' + orderId, {status: status}) as Observable<OrderFullModel>;
+    return (this.put<{status: string}>('orders/' + orderId, {status: status}) as Observable<{order: OrderFullModel}>)
+      .map(response => response.order).map(this.fixOrder);
   }
 
   addOrderFood(orderId: number, foodId: number): Observable<OrderFullModel> {
@@ -43,7 +44,7 @@ export class OrderService extends BaseHttpService {
   }
 
   setOrderedFoodPaid(orderedFoodId: number): Observable<OrderFullModel> {
-    return (this.put<{}>('orderedFood/' + orderedFoodId, {}) as Observable<{order: OrderFullModel}>)
+    return (this.put<{}>('orderedFood/' + orderedFoodId + '/paid', {}) as Observable<{order: OrderFullModel}>)
       .map(response => response.order).map(this.fixOrder);
   }
 
@@ -51,7 +52,8 @@ export class OrderService extends BaseHttpService {
     order.foodProvider.food.forEach((food: FoodModel, i: number, array: FoodModel[]) => array[i].price = parseFloat(food.price).toFixed(2));
     order.orderedFood.forEach((food: OrderedFoodModel, i: number, array: OrderedFoodModel[]) => {
       array[i].food.price = parseFloat(food.food.price).toFixed(2);
-      array[i].paid = food.paid == 'true' ? 'Yes' : 'No';
+      console.log(food.paid);
+      array[i].paid = food.paid ? 'Yes' : 'No';
     });
     return order;
   }

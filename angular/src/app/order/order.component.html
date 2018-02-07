@@ -4,6 +4,11 @@
   Description: {{order?.description}}<br>
   Order owner: {{order?.orderOwner.username}}<br>
   Status: {{order?.status}}<br>
+  <ng-container *ngIf="isOrderOwner()">
+    <button *ngIf="order.status == 'N'" type="button" class="btn btn-outline-dark" (click)="statusInProcess()">Set in progress</button>
+    <button *ngIf="order.status == 'P'" type="button" class="btn btn-outline-dark" (click)="statusServed()">Finish</button>
+    <button type="button" class="btn btn-outline-dark" (click)="statusCancelled()">Cancel order</button>
+  </ng-container>
 </h5>
 <hr>
 <h5>
@@ -18,7 +23,7 @@
   </ngb-tab>
   <ngb-tab title="Menu">
     <ng-template ngbTabContent>
-      <app-menu [provider]="order.foodProvider" [mode]="'S'" (selectedFood)="openFoodOrder(orderModalContent, $event)"></app-menu>
+      <app-menu *ngIf="order" [provider]="order?.foodProvider" [mode]="'S'" (selectedFood)="openFoodOrder(orderModalContent, $event)" [orderStatus]="order?.status"></app-menu>
     </ng-template>
   </ngb-tab>
 </ngb-tabset>

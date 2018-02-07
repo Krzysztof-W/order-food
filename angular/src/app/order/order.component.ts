@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {OrderFullModel, OrderStatus} from '../model/order.model';
 import {OrderService} from '../service/order.service';
 import {GroupsService} from '../service/groups.service';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {AlertService} from '../service/alert.service';
 import {LoggedUserService} from '../service/logged-user.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -39,6 +39,7 @@ export class OrderComponent implements OnInit {
 
   constructor(private route: ActivatedRoute,
               private groupsService: GroupsService,
+              private router: Router,
               private modalService: NgbModal,
               private alertService: AlertService,
               private loggedUserService: LoggedUserService,
@@ -63,7 +64,7 @@ export class OrderComponent implements OnInit {
   }
 
   isOrderOwner(): boolean {
-    return this.order.orderOwner.id === this.loggedUserService.loggedUser.getValue().id;
+    return this.order&&this.order.orderOwner.id === this.loggedUserService.loggedUser.getValue().id;
   }
 
   removeOrderedFood(orderedFood: OrderedFoodModel): void {
@@ -102,5 +103,35 @@ export class OrderComponent implements OnInit {
 
   sumOrderValue(): string {
     return this.order.orderedFood.reduce((x: number, y) => x + (+y.food.price), 0).toFixed(2);
+  }
+
+  statusInProcess(): void {
+    this.orderService.editOrderStatus(this.order.id, OrderStatus.PROGRESS).subscribe(
+      order => {
+        this.order = order;
+        this.alertService.addSuccessAlert(`Status changed`);
+      },
+      error => this.alertService.addErrorAlert('Error')
+    );
+  }
+
+  statusServed(): void {
+    this.orderService.editOrderStatus(this.order.id, OrderStatus.SERVED).subscribe(
+      order => {
+        this.router.navigate([`/dashoard`]);
+        this.alertService.addSuccessAlert(`Status changed`);
+      },
+      error => this.alertService.addErrorAlert('Error')
+    );
+  }
+
+  statusCancelled(): void {
+    this.orderService.editOrderStatus(this.order.id, OrderStatus.CANCELLED).subscribe(
+      order => {
+        this.router.navigate([`/dashoard`]);
+        this.alertService.addSuccessAlert(`Status changed`);
+      },
+      error => this.alertService.addErrorAlert('Error')
+    );
   }
 }
