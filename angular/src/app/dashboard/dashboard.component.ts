@@ -17,6 +17,7 @@ export class DashboardComponent implements OnInit {
   orders: OrderModel[] = [];
   orderColumns: TableColumn[] = [
     {name: 'Food provider', data: 'foodProvider.name'},
+    {name: 'Description', data: 'description'},
     {name: 'Owner', data: 'orderOwner.username'},
     {name: 'Status', data: 'status'}
   ];
