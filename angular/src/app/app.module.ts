@@ -20,10 +20,12 @@ import {RegistrationComponent} from './registration/registration.component';
 import {AlertComponent} from './alert/alert.component';
 import {AlertService} from './service/alert.service';
 import {SearchUserComponent} from './search-user/search-user.component';
-import { MenuComponent } from './menu/menu.component';
+import {MenuComponent} from './menu/menu.component';
 import {AppHttpInterceptor} from './service/app-http-interceptor';
 import {FoodProviderDetailsComponent} from './food-provider-details/food-provider-details.component';
 import {FoodProvidersService} from './service/food-providers.service';
+import {OrderComponent} from './order/order.component';
+import {OrderService} from './service/order.service';
 
 const appRoutes: Routes = [
   {path: '', component: LoginComponent},
@@ -32,7 +34,8 @@ const appRoutes: Routes = [
   {path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard]},
   {path: 'my-groups', component: MyGroupsComponent, canActivate: [AuthGuard]},
   {path: 'my-group/:id', component: MyGroupDetailsComponent, canActivate: [AuthGuard]},
-  {path: 'food-provider/:id', component: FoodProviderDetailsComponent, canActivate: [AuthGuard]}
+  {path: 'food-provider/:id', component: FoodProviderDetailsComponent, canActivate: [AuthGuard]},
+  {path: 'order/:id', component: OrderComponent, canActivate: [AuthGuard]}
 ];
 
 @NgModule({
@@ -48,7 +51,8 @@ const appRoutes: Routes = [
     AlertComponent,
     SearchUserComponent,
     MenuComponent,
-    FoodProviderDetailsComponent
+    FoodProviderDetailsComponent,
+    OrderComponent
   ],
   imports: [
     NgbModule.forRoot(),
@@ -69,7 +73,8 @@ const appRoutes: Routes = [
       useClass: AppHttpInterceptor,
       multi: true
     },
-    FoodProvidersService
+    FoodProvidersService,
+    OrderService
   ],
   bootstrap: [AppComponent]
 })

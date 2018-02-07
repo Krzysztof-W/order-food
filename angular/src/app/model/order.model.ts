@@ -1,5 +1,4 @@
-import {FoodProviderModel} from './food-provider.model';
-import {GroupModel} from './group-model';
+import {FoodProviderFullModel} from './food-provider.model';
 import {OrderedFoodModel} from './ordered-food.model';
 import {UserModel} from './user-model';
 
@@ -12,7 +11,7 @@ export enum OrderStatus {
 
 export class OrderModel {
   id: number;
-  provider: FoodProviderModel;
+  foodProvider: FoodProviderFullModel;
   description: string;
   status: OrderStatus;
   confirmDate: Date;

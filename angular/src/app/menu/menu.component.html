@@ -1,4 +1,3 @@
-<h5>Menu</h5>
 <app-table [columnData]="columns" [actions]="actions" [items]="provider.food" emptyText="Menu is empty"></app-table>
 <ng-container *ngIf="isConfigMode()">
   <ng-container *ngIf="!isOffState()">
@@ -19,7 +18,7 @@
       </div>
       <div class="form-group">
         <label for="price">Price</label>
-        <input #price="ngModel" [(ngModel)]="editedFood.price" class="form-control" id="price" placeholder="Price" required type="number">
+        <input #price="ngModel" [(ngModel)]="editedFood.price" class="form-control" id="price" placeholder="Price" required type="number" step="0.01" min="0">
       </div>
     </div>
     <div class="modal-footer">

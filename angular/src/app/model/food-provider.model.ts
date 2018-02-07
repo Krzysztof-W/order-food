@@ -6,7 +6,6 @@ export class FoodProviderModel {
   name: string;
   address: string;
   phone: string;
-  group: GroupModel;
 }
 
 export class FoodProviderFullModel extends FoodProviderModel {

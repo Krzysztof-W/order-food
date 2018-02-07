@@ -7,7 +7,7 @@
 
 <h5>Food providers</h5>
 <app-table *ngIf="groupDetails;else loading" [items]="foodProviders" [columnData]="[{name: 'Food provider name', data: 'name'}]" [actions]="providerActions" rowLink="/food-provider/"></app-table>
-<button type="button" class="btn btn-outline-dark" (click)="openProvider(providerModalContent)">Add new food provider</button>
+<button *ngIf="isGroupOwner()" type="button" class="btn btn-outline-dark" (click)="openProvider(providerModalContent)">Add new food provider</button>
 <hr>
 
 <h5>Group members</h5>

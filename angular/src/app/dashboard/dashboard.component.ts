@@ -5,6 +5,8 @@ import {TableAction, TableColumn} from "../table/table.component";
 import {InvitationModel} from "../model/invitation-model";
 import {GroupsService} from "../service/groups.service";
 import {AlertService} from "../service/alert.service";
+import {OrderModel} from "../model/order.model";
+import {OrderService} from "../service/order.service";
 
 @Component({
   selector: 'app-dashboard',
@@ -12,11 +14,17 @@ import {AlertService} from "../service/alert.service";
 })
 export class DashboardComponent implements OnInit {
   user: UserFullModel;
+  orders: OrderModel[] = [];
+  orderColumns: TableColumn[] = [
+    {name: 'Food provider', data: 'foodProvider.name'},
+    {name: 'Owner', data: 'orderOwner.username'},
+    {name: 'Status', data: 'status'}
+  ];
   recInvColumns: TableColumn[] = [
     {name: 'Group name', data: 'group.name'},
     {name: 'Owner name', data: 'sender.username'}
   ];
-  recInvAtions: TableAction[] = [
+  recInvActions: TableAction[] = [
     {
       name: 'Accept',
       condition: item => true,
@@ -32,7 +40,7 @@ export class DashboardComponent implements OnInit {
     {name: 'Invited user', data: 'invitedUser.username'},
     {name: 'Group name', data: 'group.name'}
   ];
-  sentInvAtions: TableAction[] = [
+  sentInvActions: TableAction[] = [
     {
       name: 'Cancel',
       condition: item => true,
@@ -42,12 +50,19 @@ export class DashboardComponent implements OnInit {
 
   constructor(private loggedUserService: LoggedUserService,
               private groupsService: GroupsService,
-              private alertService: AlertService) {
+              private alertService: AlertService,
+              private orderService: OrderService) {
   }
 
   ngOnInit() {
     this.loggedUserService.refreshUser();
-    this.loggedUserService.loggedUser.subscribe(user => this.user = user);
+    this.loggedUserService.loggedUser.subscribe(user => {
+      this.user = user;
+      this.orderService.getOrders(user.id).subscribe(
+        orders => this.orders = orders,
+        error => this.alertService.addErrorAlert('Could not load orders')
+      )
+    });
   }
 
   processInvitation(invitation: InvitationModel, decision: boolean): void {

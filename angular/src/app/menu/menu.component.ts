@@ -80,11 +80,11 @@ export class MenuComponent implements OnInit {
   }
 
   openEditFood(food: FoodModel): void {
-    this.editedFood = new FoodModel();
+    this.editedFood = new FoodRequestModel();
     this.editedFoodId = food.id;
     this.editedFood.name = food.name;
     this.editedFood.description = food.description;
-    this.editedFood.price = food.price;
+    this.editedFood.price = +food.price;
     this.state = MenuEditState.EDIT;
   }
 

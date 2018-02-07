@@ -1,0 +1,43 @@
+<h5>
+  Order id: {{order?.id}}<br>
+  Food provider: <a [routerLink]="'/food-provider/' + order?.foodProvider.id">{{order?.foodProvider.name}}</a><br>
+  Description: {{order?.description}}<br>
+  Order owner: {{order?.orderOwner.username}}<br>
+  Status: {{order?.status}}<br>
+</h5>
+<hr>
+<h5>
+  Order total value: {{sumOrderValue()}}
+</h5>
+<hr>
+<ngb-tabset *ngIf="order">
+  <ngb-tab title="Ordered food">
+    <ng-template ngbTabContent>
+      <app-table [items]="order.orderedFood" [actions]="actions" [columnData]="columns" emptyText="Nobody ordered food"></app-table>
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="Menu">
+    <ng-template ngbTabContent>
+      <app-menu [provider]="order.foodProvider" [mode]="'S'" (selectedFood)="openFoodOrder(orderModalContent, $event)"></app-menu>
+    </ng-template>
+  </ngb-tab>
+</ngb-tabset>
+
+<ng-template #orderModalContent let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Order food</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="food">Selected food</label>
+      <input #food class="form-control" id="food" [value]="selectedFood.name" readonly>
+    </div>
+    <p>Price: {{selectedFood.price}}</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="c(food.value)">Order</button>
+  </div>
+</ng-template>

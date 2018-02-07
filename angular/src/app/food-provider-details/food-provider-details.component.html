@@ -1,7 +1,27 @@
 <h5>
-  Food provider: {{provider.name}}<br>
-  Address: {{provider.address}}<br>
-  Phone number: {{provider.phone}}<br>
+  Food provider: {{provider?.name}}<br>
+  Address: {{provider?.address}}<br>
+  Phone number: {{provider?.phone}}<br>
 </h5>
+<button type="button" class="btn btn-outline-dark" (click)="openOrder(orderModalContent)">Open new order</button>
 <hr>
-<app-menu [(provider)]="provider" mode="C"></app-menu>
+<h5>Menu</h5>
+<app-menu *ngIf="provider" [(provider)]="provider" mode="C"></app-menu>
+
+<ng-template #orderModalContent let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Open new order</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="description">Description</label>
+      <input #description class="form-control" id="description" placeholder="Description">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="c(description.value)">Open</button>
+  </div>
+</ng-template>

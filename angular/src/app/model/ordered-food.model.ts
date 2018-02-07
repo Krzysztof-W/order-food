@@ -6,5 +6,5 @@ export class OrderedFoodModel {
   orderId: number;
   user: UserModel;
   food: FoodModel;
-  paid: boolean;
+  paid: string;
 }
