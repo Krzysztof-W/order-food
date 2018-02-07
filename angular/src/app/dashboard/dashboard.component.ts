@@ -1,20 +1,22 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {LoggedUserService} from '../service/logged-user.service';
 import {UserFullModel} from '../model/user-model';
-import {TableAction, TableColumn} from "../table/table.component";
-import {InvitationModel} from "../model/invitation-model";
-import {GroupsService} from "../service/groups.service";
-import {AlertService} from "../service/alert.service";
-import {OrderModel} from "../model/order.model";
-import {OrderService} from "../service/order.service";
+import {TableAction, TableColumn} from '../table/table.component';
+import {InvitationModel} from '../model/invitation-model';
+import {GroupsService} from '../service/groups.service';
+import {AlertService} from '../service/alert.service';
+import {OrderModel} from '../model/order.model';
+import {OrderService} from '../service/order.service';
+import {Subscription} from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   user: UserFullModel;
   orders: OrderModel[] = [];
+  userSubscription: Subscription;
   orderColumns: TableColumn[] = [
     {name: 'Food provider', data: 'foodProvider.name'},
     {name: 'Description', data: 'description'},
@@ -57,13 +59,17 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loggedUserService.refreshUser();
-    this.loggedUserService.loggedUser.subscribe(user => {
+    this.userSubscription = this.loggedUserService.loggedUser.subscribe(user => {
       this.user = user;
       this.orderService.getOrders(user.id).subscribe(
         orders => this.orders = orders,
         error => this.alertService.addErrorAlert('Could not load orders')
       )
     });
+  }
+
+  ngOnDestroy(): void {
+    this.userSubscription.unsubscribe();
   }
 
   processInvitation(invitation: InvitationModel, decision: boolean): void {
