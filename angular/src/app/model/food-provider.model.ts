@@ -9,5 +9,6 @@ export class FoodProviderModel {
 }
 
 export class FoodProviderFullModel extends FoodProviderModel {
+  group: GroupModel;
   food: FoodModel[];
 }

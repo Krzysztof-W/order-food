@@ -25,5 +25,5 @@
       <button type="button" class="btn btn-outline-dark" (click)="addEditFood()" [disabled]="name.invalid || description.invalid || price.invalid">{{isAddState() ? 'Add' : 'Edit'}}</button>
     </div>
   </ng-container>
-  <button *ngIf="isOffState()" type="button" class="btn btn-outline-dark" (click)="openAddFood()">Add food to menu</button>
+  <button *ngIf="isOffState() && isOwner()" type="button" class="btn btn-outline-dark" (click)="openAddFood()">Add food to menu</button>
 </ng-container>

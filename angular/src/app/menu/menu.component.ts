@@ -5,6 +5,7 @@ import {FoodProvidersService} from '../service/food-providers.service';
 import {AlertService} from '../service/alert.service';
 import {FoodRequestModel} from '../model/food-request.model';
 import {FoodProviderFullModel} from '../model/food-provider.model';
+import {LoggedUserService} from '../service/logged-user.service';
 
 export enum MenuMode {
   CONFIG = 'C',
@@ -37,12 +38,12 @@ export class MenuComponent implements OnInit {
   actions: TableAction[] = [
     {
       name: 'Edit',
-      condition: item => this.mode === MenuMode.CONFIG,
+      condition: item => this.mode === MenuMode.CONFIG && this.isOwner(),
       action: item => this.openEditFood(item)
     },
     {
       name: 'Delete',
-      condition: item => this.mode === MenuMode.CONFIG,
+      condition: item => this.mode === MenuMode.CONFIG && this.isOwner(),
       action: item => this.deleteFood(item)
     },
     {
@@ -53,7 +54,8 @@ export class MenuComponent implements OnInit {
   ];
 
   constructor(private foodProvidersService: FoodProvidersService,
-              private alertService: AlertService) { }
+              private alertService: AlertService,
+              private loggedUserService: LoggedUserService) { }
 
   ngOnInit() {
   }
@@ -153,5 +155,9 @@ export class MenuComponent implements OnInit {
 
   closeAddEdit(): void {
     this.state = MenuEditState.OFF;
+  }
+
+  isOwner(): boolean {
+    return this.provider.group.owner.id === this.loggedUserService.loggedUser.getValue().id;
   }
 }
